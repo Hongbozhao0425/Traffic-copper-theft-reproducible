@@ -12,7 +12,7 @@ Quick Execution: Run_all.R
 To streamline the analysis process, this repository includes a Run_all.R file, which automatically sources all key scripts in sequence—from data preprocessing to model fitting. It is recommended to open the Github.Rproj project file in RStudio and execute Run_all.R for a complete, end-to-end reproducible workflow. Please, make sure all required packages are installed and that Quarto is properly configured to render .qmd files.
 
 Software Requirements
-R version: 4.x or later
+R version: 4 or later
 Quarto version: 1.4 or later
 
 Required R packages are listed in:
