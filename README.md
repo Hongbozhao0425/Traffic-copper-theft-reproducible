@@ -1,6 +1,6 @@
 Title： Traffic Copper Theft – Reproducible Analysis
 
-This repository provides a fully reproducible research framework for analyzing traffic copper cable theft in New South Wales (NSW), Australia. The study focuses on the influence of copper prices, scrap metal imports, unemployment, and legislation on theft incidents. The analysis includes ARIMAX, log-log regression, and XGBoost models.
+This repository provides a fully reproducible research framework for analyzing traffic copper cable theft in Australia. The study focuses on the influence of copper prices, scrap metal imports, unemployment, and legislation on theft incidents. The analysis includes ARIMAX, log-log regression, and XGBoost models.
 
 Repository Structure
 01_Data/: Raw and processed data files
