@@ -1,0 +1,16 @@
+###############################################
+###Unemployment Rate in New South Wales (Unwork_NSW)###
+###############################################
+
+This variable reflects the proportion of unemployed individuals in the labor force within New South Wales (NSW). The data are sourced from the Australian Bureau of Statistics (ABS) as part of the Labour Force, Australia monthly survey. Specifically, the data were obtained by accessing the ABS website and downloading Table 4: Labour force status by Sex, New South Wales – Trend, Seasonally adjusted and Original. Within this table, the series A84423606W—representing Unemployment rate; Persons; Percent; Original—was selected for analysis (see 02_Unwork_NSW.png for reference).
+
+The data are reported at a monthly frequency, measured in percentages (%), and cover the period from February 1978 to January 2025. The original dataset is stored in the file "02_6202004.xlsx" under the directory "01_Data/03_Raw_original_data/".
+
+To ensure analytical consistency across all variables, the Original (unadjusted) monthly series was retained. This variable serves as a macroeconomic control, accounting for the influence of labor market conditions on fluctuations in theft-related incidents. It is particularly relevant for isolating the impact of economic cycles from other structural or policy-related effects.
+
+All procedures related to the transformation of this variable—including logarithmic conversion, lag construction, and model integration—are documented in the project directory under "02_Scripts".
+
+Source: https://bocsar.nsw.gov.au/statistics-dashboards/open-datasets/criminal-offences-data.html
+
+Last updated: 23 July 2025
+Maintainer: [Hongbo Zhao / Contact: hongbo.zhao@uqconnect.edu.au]
