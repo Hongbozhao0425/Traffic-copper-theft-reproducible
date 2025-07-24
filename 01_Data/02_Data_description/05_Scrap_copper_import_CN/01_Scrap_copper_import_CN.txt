@@ -1,0 +1,19 @@
+#############################################
+###Chinese Scrap Copper Imports (Scrap_Imports_CN)###
+#############################################
+
+This variable reflects the monthly volume of copper waste and scrap imported into China, as reported by the General Administration of Customs of China (GACC) and sourced via the CEIC Data Platform. Specifically, the indicator corresponds to “Non Ferrous Metal: Import: Copper Waste & Scrap” under China’s non-ferrous metal import statistics. The data are expressed in thousand tons, reported at a monthly frequency, and span the period from January 2004 to December 2024.
+
+The dataset was obtained by searching for the series ID 52909501 on the CEIC platform, selecting the full available time range, and exporting the data via the "Download" function (see 02_Scrap_copper_import_CN.png, 03_Scrap_copper_import_CN.png, and 04_Scrap_copper_import_CN.png). The original file, titled "06_Non_Ferrous_Metal_Import_Copper_Waste.xlsx", is stored in the directory "01_Data/03_Raw_original_data/".
+
+The data are derived from official Chinese customs declarations and compiled following the United Nations’ international trade statistics standards. They cover all goods passing through China’s customs territory, including entries into bonded zones, special economic zones, and processing trade areas. Exclusions apply to temporary imports/exports, short-term leases, and travellers' personal effects. Import values are reported on a cost, insurance, and freight (CIF) basis and expressed in both RMB and USD, with exchange rates defined by the People's Bank of China and the State Administration of Foreign Exchange. Further details on data construction and classification standards are available in the accompanying CEIC metadata documentation (CEIC_).
+
+In this study, the variable serves as a proxy for supply-side pressure in China’s copper recycling market. Changes in scrap copper imports are interpreted as indicative of shifts in the international copper supply chain, thereby providing important contextual insight into the relationship between copper prices and theft-related behaviour.
+
+Procedures related to variable transformation, missing data handling, and lag construction are documented in the "02_Scripts" directory.
+
+Source: https://www.ceicdata.com/en
+
+
+Last updated: 23 July 2025
+Maintainer: [Hongbo Zhao / Contact: hongbo.zhao@uqconnect.edu.au]
