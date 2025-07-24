@@ -1,0 +1,182 @@
+---
+title: "Data_Preprocessing"
+author: "Hongbo_Zhao"
+format: html
+editor: visual
+---
+
+## Data Preprocessing Script
+
+This script performs unified preprocessing of raw data from various sources, including copper prices, unemployment rate, general theft rate, copper scrap imports, and traffic-related copper cable theft records. All steps maintain data integrity and ensure temporal alignment to facilitate downstream modeling.
+
+## 1. Preprocessing Copper Price Data
+
+The raw copper price data is recorded at the daily level (MM/DD/YYYY format) and must be converted into monthly medians.
+
+```{r}
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+# Load raw copper price data
+df_raw_Price <- read_csv(here("01_Data", "03_Raw_original_data", "03_chart_20250721T044019.csv"))
+
+# Convert date format
+df_raw_Price <- df_raw_Price %>%
+  mutate(Date = mdy(Date))  # Original format: MM/DD/YYYY
+
+# Filter data to the target analysis period
+df_filtered_Price <- df_raw_Price %>%
+  filter(Date >= as.Date("2010-01-01") & Date <= as.Date("2023-06-01"))
+
+# Aggregate to monthly median copper prices
+monthly_copper <- df_filtered_Price %>%
+  mutate(month = floor_date(Date, "month")) %>%
+  group_by(month) %>%
+  summarise(Copper_price = median(Value, na.rm = TRUE)) %>%
+  ungroup()
+```
+
+## 2. Preprocessing General Theft Rate
+
+The original dataset contains multiple subcategories of theft with monthly counts. We focus on selected subcategories and aggregate them into a total theft rate.
+
+```{r}
+# Load raw theft data
+df_theft <- read_excel(here("01_Data", "03_Raw_original_data", "05_Incident_by_NSW.xlsx"))
+
+# Define target subcategories
+target_subcategories <- c(
+  "Break and enter dwelling",
+  "Break and enter non-dwelling",
+  "Receiving or handling stolen goods",
+  "Motor vehicle theft",
+  "Steal from motor vehicle",
+  "Steal from retail store",
+  "Steal from dwelling",
+  "Steal from person",
+  "Stock theft",
+  "Fraud",
+  "Other theft"
+)
+
+# Filter to target subcategories
+df_filtered <- df_theft %>%
+  filter(Subcategory %in% target_subcategories)
+
+# Extract time-related columns and reshape to long format
+all_time_cols <- names(df_filtered)[6:ncol(df_filtered)]
+
+monthly_theft <- df_filtered %>%
+  select(all_of(all_time_cols)) %>%
+  summarise(across(everything(), ~ sum(.x, na.rm = TRUE))) %>%
+  pivot_longer(cols = everything(), names_to = "date", values_to = "Theft_rate") %>%
+  mutate(date = as.Date(as.numeric(date), origin = "1899-12-30"))
+
+# Filter to the target time range
+monthly_theft <- monthly_theft %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01"))
+```
+
+## 3. Preprocessing Unemployment Rate (NSW)
+
+The raw data comes from ABS in a wide-format Excel file. Data begins from row 11, and column 49 contains the unemployment rate for NSW.
+
+```{r}
+df_unwork <- read_excel(
+  path = here("01_Data", "03_Raw_original_data", "02_6202004.xlsx"),
+  sheet = "Data1",
+  col_names = FALSE
+)
+
+monthly_unwork <- df_unwork %>%
+  dplyr::slice(11:nrow(.)) %>%
+  select(date_raw = 1, unwork_rate = 49) %>%
+  mutate(
+    date = as.Date(as.numeric(date_raw), origin = "1899-12-30"),
+    unwork_rate = as.numeric(unwork_rate)
+  ) %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01")) %>%
+  select(date, unwork_rate)
+```
+
+## 4. Preprocessing Copper Scrap Imports from China
+
+The raw monthly dataset starts from row 30 and contains the date and import value in the first two columns.
+
+```{r}
+df_scrap <- read_excel(
+  path = here("01_Data", "03_Raw_original_data", "06_Non_Ferrous_Metal_Import_Copper_Waste.xlsx"),
+  col_names = FALSE
+)
+
+monthly_scrap <- df_scrap %>%
+  dplyr::slice(30:n()) %>%
+  select(date_raw = 1, value_raw = 2) %>%
+  mutate(
+    date = as.Date(as.numeric(date_raw), origin = "1899-12-30"),
+    copper_scrap_import = as.numeric(value_raw)
+  ) %>%
+  filter(!is.na(date) & !is.na(copper_scrap_import)) %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01")) %>%
+  select(date, copper_scrap_import)
+```
+
+## 5. Preprocessing Traffic Copper Theft Records
+
+This dataset contains the main dependent variable in our study—monthly records of copper cable theft from transport infrastructure.
+
+```{r}
+traffic_theft <- read_excel(
+  here("01_Data", "03_Raw_original_data", "04_copper_theft_NSW.xlsx")
+) %>%
+  rename(date = Date, time_unit = total_t) %>%
+  mutate(date = as.Date(date))
+```
+
+## 6. Merging All Preprocessed Datasets
+
+We merge copper prices, scrap imports, unemployment rate, and general theft rate into the traffic copper theft dataset using date as the key.
+
+```{r}
+# Rename variables for consistent merging
+monthly_theft <- monthly_theft %>% rename(total_theft = Theft_rate)
+monthly_copper <- monthly_copper %>% rename(date = month)
+
+# Ensure all date columns are in Date format
+monthly_copper$date <- as.Date(monthly_copper$date)
+monthly_scrap$date <- as.Date(monthly_scrap$date)
+monthly_unwork$date <- as.Date(monthly_unwork$date)
+monthly_theft$date <- as.Date(monthly_theft$date)
+
+# Merge all datasets
+combined_data <- traffic_theft %>%
+  left_join(monthly_copper, by = "date") %>%
+  left_join(monthly_scrap, by = "date") %>%
+  left_join(monthly_unwork, by = "date") %>%
+  left_join(monthly_theft, by = "date")
+
+# Inspect the merged data
+str(combined_data)
+summary(combined_data)
+```
+
+## 7. Final Variable Renaming and Environmental Cleanup
+
+```{r}
+# Rename variables for clarity and standardization
+combined_data <- combined_data %>%
+  rename(
+    Scrap_Imports_CN = copper_scrap_import,
+    Unwork_NSW = unwork_rate,
+    Total_theft = total_theft
+  )
+
+# Keep only useful final datasets and remove all intermediate variables
+useful_vars <- c("monthly_copper", "monthly_scrap", "monthly_theft", "monthly_unwork", "combined_data")
+rm(list = setdiff(ls(), useful_vars))
+```
+
+## Conclusion
+
+This `.qmd` script completes all required steps for reading, cleaning, and aligning raw variables in preparation for modeling. The resulting `combined_data` object is fully reproducible—any updates to original files can be reprocessed by re-running this script.
+
+Last updated: 23 July 2025 Maintainer: \[Hongbo Zhao / Contact: hongbo.zhao\@uqconnect.edu.au\]
