@@ -29,11 +29,11 @@ This README corresponds to the reproducibility repository for the paper submitte
 
 The repository follows a four-layer reproducible research framework:  
 
-├── 01_Data: Raw and processed datasets  
-├── 02_Scripts: R scripts for model development (Log–log, ARIMAX, XGBoost)  
-├── 03_Outputs: Figures and tables used in the manuscript  
-├── 04_Manuscript：Reproducible manuscript (.qmd)  
-└── Run_all.R: Master script to execute the workflow  
+├── **01_Data:** Raw and processed datasets  
+├── **02_Scripts:** R scripts for model development (Log–log, ARIMAX, XGBoost)  
+├── **03_Outputs:** Figures and tables used in the manuscript  
+├── **04_Manuscript:** Reproducible manuscript (.qmd)  
+└── **Run_all.R:** Master script to execute the workflow  
 
 This structure ensures transparency, traceability, and full reproducibility.
 
