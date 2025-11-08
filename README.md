@@ -1,8 +1,6 @@
 # Predicting Traffic Copper Cable Theft and Its Contributing Factors
 *A Reproducible Time-Series Modelling Approach*
 
----
-
 ## Overview
 
 This repository accompanies the research paper **“Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach.”**  
