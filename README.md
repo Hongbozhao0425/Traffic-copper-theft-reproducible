@@ -3,7 +3,7 @@
 
 ## Overview
 
-This repository accompanies the research paper “Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach”， which provides a fully reproducible analytical framework and all associated datasets and scripts.
+This repository accompanies the research paper “Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach”.
 
 The study focuses on traffic copper cable theft incidents in New South Wales, Australia (2010–2023), developing an integrated time-series modelling framework that combines econometric models (Log–log and ARIMAX) and a machine-learning model (XGBoost).  
 It systematically analyses multiple explanatory factors, including copper price fluctuations, global scrap copper demand, unemployment rate, overall theft level, legislative interventions, and seasonal (monthly) variations, and compares the predictive performance and interpretability of different models.
@@ -33,6 +33,8 @@ The repository follows a four-layer reproducible research framework:
 ├── 03_Outputs/      Figures and tables used in the manuscript  
 ├── 04_Manuscript/   Reproducible manuscript (.qmd)  
 └── Run_all.R/        Master script to execute the workflow  
+
+The following section describes the data sources used within this structure.
 
 ## Data
 
