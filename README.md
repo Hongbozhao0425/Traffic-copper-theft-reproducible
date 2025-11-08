@@ -94,3 +94,25 @@ This repository releases all datasets, analysis scripts, and reproducible Quarto
 （待定）
 
 
+## 8. Citation
+
+If you wish to cite this repository, please use the following **temporary citation format** (to be updated upon journal publication):
+
+> **Anonymous. (2025).** *Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach.*  
+> Manuscript submitted for publication.  
+> Available at: [GitHub Repository](https://github.com/Hongbozhao0425/Traffic-copper-theft-reproducible)
+
+
+## 9. License
+
+This project is distributed under the **MIT License**, allowing free use, modification, and redistribution for academic and educational purposes. Users must retain the original author attribution and license statement in any derivative works. For full license details, please see the [`LICENSE`](./LICENSE) file.
+
+
+## 10. Contact
+
+For questions regarding the dataset, code, or reproducibility, please contact:
+
+**Hongbo Zhao**  
+*The University of Queensland*  
+📧 [hongbo.zhao@uqconnect.edu.au](mailto:hongbo.zhao@uqconnect.edu.au)  
+🌐 [GitHub Profile](https://github.com/Hongbozhao0425)
