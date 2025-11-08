@@ -1,6 +1,7 @@
 # Predicting Traffic Copper Cable Theft and Its Contributing Factors - A Reproducible Time-Series Modelling Approach
 
 
+
 ## Overview
 
 This repository accompanies the research paper “Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach”.
@@ -12,6 +13,7 @@ Results show that copper price and overall theft level are long-term, stable ext
 Seasonal effects are generally weak, with minor peaks observed in May and September. Overall, traffic copper cable theft exhibits low inertia but high responsiveness, driven primarily by immediate market conditions and broader crime dynamics.
 
 
+
 ## Key Contributions
 
 The main contributions of this study are as follows:
@@ -19,6 +21,7 @@ The main contributions of this study are as follows:
 - **Research Extension:** Expands metal theft research to the underexplored area of traffic infrastructure theft, jointly examining copper prices, global scrap demand, unemployment, overall theft levels, and seasonal patterns.  
 - **Methodological Innovation:** Establishes a cross-method comparative framework integrating Log–log, ARIMAX, and XGBoost models, and introduces legislative variables to distinguish short-term and cumulative effects.  
 - **Reproducibility Framework:** Implements a fully automated and reproducible workflow in R and Quarto, enhancing transparency and verifiability in transport crime analysis.
+
 
 
 ## Data
@@ -33,6 +36,7 @@ This repository includes all datasets used in the study, covering economic, legi
 - **Legislative, Seasonal, and Lag Variables:** Internally generated for model analysis.
 
 Detailed variable definitions and preprocessing notes are available in `/01_Data/01_Data_description/`.
+
 
 
 ## Analysis and Results
@@ -51,7 +55,6 @@ homoscedasticity, and stationarity.
 The Log–log model shows slight autocorrelation (Box–Ljung *p* = 6.65×10⁻¹³),  
 which was corrected using Newey–West robust standard errors.
 <img width="865" height="396" alt="image" src="https://github.com/user-attachments/assets/de455398-f941-417f-a0e3-0013643209ce" />
-**Summary of basic assumption tests applied to each model**
 
 
 ### 2. Predictive Performance
@@ -64,7 +67,6 @@ and **XGBoost** provides better interpretability through feature importance meas
 **Predicted vs Actual Cases**
 
 <img width="859" height="527" alt="image" src="https://github.com/user-attachments/assets/06814f7f-0104-4e49-9af6-ed17f2e5c77b" />
-**Comparison of predicted and observed theft cases (2021Q3–2023Q2)**
 
 
 ### 3. Key Factor Analysis
@@ -75,7 +77,6 @@ Cross-model comparisons indicate that:
 - **Unemployment rate** and **China’s scrap copper imports** show limited statistical significance;
 - **Seasonal effects** are minor, with small peaks observed in **May** and **September**.
 <img width="864" height="298" alt="image" src="https://github.com/user-attachments/assets/3d0236cc-c1ca-4ffe-b3eb-4037345f0175" />
-**Cross model comparison of key predictors and their relative importance**
 
 
 ### 4. Summary
@@ -84,6 +85,7 @@ Overall, traffic copper cable theft in New South Wales exhibits **low inertia bu
 primarily driven by short-term market dynamics and broader crime trends.  
 These outputs provide a baseline reference for reproducibility validation  
 and serve as benchmarks for future model extensions or comparative studies.
+
 
 
 ## Repository Structure
