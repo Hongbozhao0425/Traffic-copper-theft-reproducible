@@ -24,18 +24,6 @@ This repository releases all datasets, analysis scripts, and reproducible Quarto
 This README corresponds to the reproducibility repository for the paper submitted to European Transport Research Review.
 
 
-## Repository Structure
-
-The repository follows a four-layer reproducible research framework:  
-
-├── 01_Data/         Raw and processed datasets  
-├── 02_Scripts/      R scripts for model development (Log–log, ARIMAX, XGBoost)  
-├── 03_Outputs/      Figures and tables used in the manuscript  
-├── 04_Manuscript/   Reproducible manuscript (.qmd)  
-└── Run_all.R/        Master script to execute the workflow  
-
-The following section describes the data sources used within this structure.
-
 ## Data
 
 This repository includes all datasets used in the study, covering economic, legislative, and crime-related indicators for **New South Wales, Australia (2010–2023)**.
@@ -48,6 +36,23 @@ This repository includes all datasets used in the study, covering economic, legi
 - **Legislative, Seasonal, and Lag Variables:** Internally generated for model analysis.
 
 Detailed variable definitions and preprocessing notes are available in `/01_Data/01_Data_description/`.
+
+
+## Analysis and Results
+
+
+
+## Repository Structure
+
+The repository follows a four-layer reproducible research framework:  
+
+├── 01_Data/         Raw and processed datasets  
+├── 02_Scripts/      R scripts for model development (Log–log, ARIMAX, XGBoost)  
+├── 03_Outputs/      Figures and tables used in the manuscript  
+├── 04_Manuscript/   Reproducible manuscript (.qmd)  
+└── Run_all.R/        Master script to execute the workflow  
+
+The following section describes the data sources used within this structure.
 
 
 ## Reproducibility and Execution
