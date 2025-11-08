@@ -45,5 +45,5 @@ This repository includes all datasets used in the study, covering economic, legi
 - **China’s Scrap Copper Imports:** Monthly import volumes (thousand tonnes) from *CEIC Database*.  
 - **Legislative, Seasonal, and Lag Variables:** Internally generated for model analysis.
 
-Detailed variable definitions and preprocessing notes are available in `/01_Data/02_Data_description/`.
+Detailed variable definitions and preprocessing notes are available in `/01_Data/01_Data_description/`.
 
