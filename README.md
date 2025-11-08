@@ -23,3 +23,23 @@ The main contributions of this study are as follows:
 
 This repository releases all datasets, analysis scripts, and reproducible Quarto (.qmd) documents, supporting transparent and verifiable research and policy assessment.  
 This README corresponds to the reproducibility repository for the paper submitted to European Transport Research Review.
+
+
+## Repository Structure
+
+The repository follows a four-layer reproducible research framework:  
+
+├── 01_Data/        # Raw and processed datasets  
+├── 02_Scripts/     # R scripts for model development (Log–log, ARIMAX, XGBoost)  
+├── 03_Outputs/     # Figures and tables used in the manuscript  
+├── 04_Manuscript/  # Reproducible manuscript (.qmd)  
+└── Run_all.R       # Master script to execute the workflow  
+
+This structure ensures transparency, traceability, and full reproducibility.
+
+
+## Data Availability
+
+All original datasets were obtained from the Bureau of Crime Statistics and Research (BOCSAR),  
+New South Wales, Australia. Processed and anonymized datasets used in this study  
+are provided within the repository under the `/01_Data/04_Processed_data/` directory.
