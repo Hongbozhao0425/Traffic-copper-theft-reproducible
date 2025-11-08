@@ -18,7 +18,7 @@ The main contributions of this study are as follows:
 
 - Research Extension: Expands metal theft research to the underexplored area of traffic infrastructure theft, jointly examining copper prices, global scrap demand, unemployment, overall theft levels, and seasonal patterns.  
 - Methodological Innovation: Establishes a cross-method comparative framework integrating Log–log, ARIMAX, and XGBoost models, and introduces legislative variables to distinguish short-term and cumulative effects.  
-- Reproducibility Framework: Implements a fully automated and reproducible workflow in **R and Quarto**, enhancing transparency and verifiability in transport crime analysis.
+- Reproducibility Framework: Implements a fully automated and reproducible workflow in R and Quarto, enhancing transparency and verifiability in transport crime analysis.
 
 
 This repository releases all datasets, analysis scripts, and reproducible Quarto (.qmd) documents, supporting transparent and verifiable research and policy assessment.  
