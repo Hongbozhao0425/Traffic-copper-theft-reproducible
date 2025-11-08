@@ -1,0 +1,15 @@
+---
+title: "Required_packages_and_setup"
+author: "Hongbo_Zhao"
+format: html
+editor: visual
+---
+
+## Required_packages_and_setup
+
+This section installs and loads all required R packages to ensure reproducibility of the following workflow.
+
+```{r}
+install.packages("renv")
+renv::restore()
+```
