@@ -51,18 +51,13 @@ The results below are provided to illustrate the outputs produced by the reprodu
 ### 1. Model Assumption Tests
 
 All three models (**Log–log**, **ARIMAX(1,0,1)**, and **XGBoost**) satisfy the key assumptions of residual normality,  
-homoscedasticity, and stationarity.  
-The Log–log model shows slight autocorrelation (Box–Ljung *p* = 6.65×10⁻¹³),  
-which was corrected using Newey–West robust standard errors.
+homoscedasticity, and stationarity. The Log–log model shows slight autocorrelation (Box–Ljung *p* = 6.65×10⁻¹³), which was corrected using Newey–West robust standard errors.
 <img width="865" height="396" alt="image" src="https://github.com/user-attachments/assets/de455398-f941-417f-a0e3-0013643209ce" />
 
 
 ### 2. Predictive Performance
 
-All models perform significantly better than the naïve lag baseline (MASE < 1).  
-The **Log–log model** achieves the best overall error control,  
-the **ARIMAX** model captures short-term fluctuations more effectively,  
-and **XGBoost** provides better interpretability through feature importance measures.
+All models perform significantly better than the naïve lag baseline (MASE < 1). The **Log–log model** achieves the best overall error control, the **ARIMAX** model captures short-term fluctuations more effectively, and **XGBoost** provides better interpretability through feature importance measures.
 <img width="865" height="266" alt="image" src="https://github.com/user-attachments/assets/16d94597-f537-49b2-9091-2715cabfa827" />
 **Predicted vs Actual Cases**
 
@@ -81,10 +76,7 @@ Cross-model comparisons indicate that:
 
 ### 4. Summary
 
-Overall, traffic copper cable theft in New South Wales exhibits **low inertia but high responsiveness**,  
-primarily driven by short-term market dynamics and broader crime trends.  
-These outputs provide a baseline reference for reproducibility validation  
-and serve as benchmarks for future model extensions or comparative studies.
+Overall, traffic copper cable theft in New South Wales exhibits **low inertia but high responsiveness**, primarily driven by short-term market dynamics and broader crime trends. These outputs provide a baseline reference for reproducibility validation and serve as benchmarks for future model extensions or comparative studies.
 
 
 
