@@ -1,0 +1,22 @@
+#############################################
+###Traffic Copper Cable Theft and Intervention Variables###
+#############################################
+
+This dataset records the monthly number of copper cable theft incidents targeting transportation infrastructure within a specific jurisdiction. The variable cases represents the total number of reported incidents each month, covering the period from January 2010 to June 2023. It serves as the primary dependent variable in this study and is used to characterize the temporal evolution of theft behavior under the influence of market forces and legislative interventions.
+
+Three additional variables are included to support the Interrupted Time Series (ITS) design:
+
+intervention: A binary policy variable indicating whether legislation aimed at deterring copper theft was in effect during the respective month (0 = not implemented; 1 = implemented);
+
+t_since: A post-intervention time variable that captures the number of months elapsed since the legislation took effect. It is set to 0 prior to intervention and increases by 1 each subsequent month, allowing for the assessment of long-term effects;
+
+total_t: A continuous time index representing the cumulative number of months in the sample period, incremented sequentially to control for underlying time trends.
+
+These variables are provided in the file "04_copper_theft_NSW.xlsx", located in the directory 01_Data/02_Raw_original_data/, and are treated as key design components in the ITS modeling framework. Details regarding variable construction, lag specification, and model integration are fully documented in the "02_Scripts" directory.
+
+Note: This dataset was obtained from a non-public statistical summary provided through authorized project collaboration. The raw data cannot be publicly shared; however, all processing steps have been transparently documented to ensure the reproducibility and verifiability of the analytical workflow.
+
+
+Last updated: 23 July 2025
+Maintainer: [Hongbo Zhao / Contact: hongbo.zhao@uqconnect.edu.au]
+
