@@ -20,9 +20,6 @@ The main contributions of this study are as follows:
 - **Methodological Innovation:** Establishes a cross-method comparative framework integrating Log–log, ARIMAX, and XGBoost models, and introduces legislative variables to distinguish short-term and cumulative effects.  
 - **Reproducibility Framework:** Implements a fully automated and reproducible workflow in R and Quarto, enhancing transparency and verifiability in transport crime analysis.
 
-This repository releases all datasets, analysis scripts, and reproducible Quarto (.qmd) documents, supporting transparent and verifiable research and policy assessment.  
-This README corresponds to the reproducibility repository for the paper submitted to European Transport Research Review.
-
 
 ## Data
 
@@ -52,7 +49,7 @@ The repository follows a four-layer reproducible research framework:
 ├── 04_Manuscript/   Reproducible manuscript (.qmd)  
 └── Run_all.R/        Master script to execute the workflow  
 
-The following section describes the data sources used within this structure.
+This repository releases all datasets, analysis scripts, and reproducible Quarto (.qmd) documents, supporting transparent and verifiable research and policy assessment.  
 
 
 ## Reproducibility and Execution
