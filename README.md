@@ -16,10 +16,9 @@ Seasonal effects are generally weak, with minor peaks observed in May and Septem
 
 The main contributions of this study are as follows:
 
-- Research Extension: Expands metal theft research to the underexplored area of traffic infrastructure theft, jointly examining copper prices, global scrap demand, unemployment, overall theft levels, and seasonal patterns.  
-- Methodological Innovation: Establishes a cross-method comparative framework integrating Log–log, ARIMAX, and XGBoost models, and introduces legislative variables to distinguish short-term and cumulative effects.  
-- Reproducibility Framework: Implements a fully automated and reproducible workflow in R and Quarto, enhancing transparency and verifiability in transport crime analysis.
-
+- **Research Extension:** Expands metal theft research to the underexplored area of traffic infrastructure theft, jointly examining copper prices, global scrap demand, unemployment, overall theft levels, and seasonal patterns.  
+- **Methodological Innovation:** Establishes a cross-method comparative framework integrating Log–log, ARIMAX, and XGBoost models, and introduces legislative variables to distinguish short-term and cumulative effects.  
+- **Reproducibility Framework:** Implements a fully automated and reproducible workflow in R and Quarto, enhancing transparency and verifiability in transport crime analysis.
 
 This repository releases all datasets, analysis scripts, and reproducible Quarto (.qmd) documents, supporting transparent and verifiable research and policy assessment.  
 This README corresponds to the reproducibility repository for the paper submitted to European Transport Research Review.
@@ -35,6 +34,16 @@ The repository follows a four-layer reproducible research framework:
 ├── 04_Manuscript/   Reproducible manuscript (.qmd)  
 └── Run_all.R/        Master script to execute the workflow  
 
-All original datasets were obtained from the Bureau of Crime Statistics and Research (BOCSAR),  
-New South Wales, Australia. Processed and anonymized datasets used in this study  
-are provided within the repository under the `/01_Data/04_Processed_data/` directory.
+## Data
+
+This repository includes all datasets used in the study, covering economic, legislative, and crime-related indicators for **New South Wales, Australia (2010–2023)**.
+
+- **Traffic Copper Cable Theft:** Dataset provided and compiled by *Professor Zuduo Zheng’s research group* at *The University of Queensland*. Included in this repository with permission for research reproducibility.  
+- **Overall Theft in NSW:** Monthly property crime index from the *NSW Bureau of Crime Statistics and Research (BOCSAR)*.  
+- **Unemployment Rate:** Monthly unemployment rate (%) from the *Australian Bureau of Statistics (ABS)*.  
+- **Global Copper Price:** Monthly median COMEX spot prices from *Macrotrends*.  
+- **China’s Scrap Copper Imports:** Monthly import volumes (thousand tonnes) from *CEIC Database*.  
+- **Legislative, Seasonal, and Lag Variables:** Internally generated for model analysis.
+
+Detailed variable definitions and preprocessing notes are available in `/01_Data/02_Data_description/`.
+
