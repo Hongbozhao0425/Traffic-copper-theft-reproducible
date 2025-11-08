@@ -100,8 +100,7 @@ If you wish to cite this repository, please use the following **temporary citati
 
 > Anonymous. (2025). Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach. 
 > Manuscript submitted for publication.  
-> Available at: [GitHub Repository]([https://github.com/Hongbozhao0425/Traffic-copper-theft-reproducible](https://github.com/Hongbozhao0425/Traffic-copper-theft-reproducible/tree/main))
-
+> Available at: [GitHub Repository]([https://github.com/Hongbozhao0425/Traffic-copper-theft-reproducible]
 
 ## 9. License
 
