@@ -35,11 +35,6 @@ The repository follows a four-layer reproducible research framework:
 ├── **04_Manuscript:** Reproducible manuscript (.qmd)  
 └── **Run_all.R:** Master script to execute the workflow  
 
-This structure ensures transparency, traceability, and full reproducibility.
-
-
-## Data Availability
-
 All original datasets were obtained from the Bureau of Crime Statistics and Research (BOCSAR),  
 New South Wales, Australia. Processed and anonymized datasets used in this study  
 are provided within the repository under the `/01_Data/04_Processed_data/` directory.
