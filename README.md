@@ -61,7 +61,7 @@ The **Log–log model** achieves the best overall error control,
 the **ARIMAX** model captures short-term fluctuations more effectively,  
 and **XGBoost** provides better interpretability through feature importance measures.
 <img width="865" height="266" alt="image" src="https://github.com/user-attachments/assets/16d94597-f537-49b2-9091-2715cabfa827" />
-**Predicted_vs_Actual_Cases**
+**Predicted vs Actual Cases**
 
 <img width="859" height="527" alt="image" src="https://github.com/user-attachments/assets/06814f7f-0104-4e49-9af6-ed17f2e5c77b" />
 **Comparison of predicted and observed theft cases (2021Q3–2023Q2)**
