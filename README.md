@@ -33,7 +33,7 @@ The repository follows a four-layer reproducible research framework:
 ├── 02_Scripts/      R scripts for model development (Log–log, ARIMAX, XGBoost)  
 ├── 03_Outputs/      Figures and tables used in the manuscript  
 ├── 04_Manuscript/   Reproducible manuscript (.qmd)  
-└── Run_all.R        Master script to execute the workflow  
+└── Run_all.R/        Master script to execute the workflow  
 
 All original datasets were obtained from the Bureau of Crime Statistics and Research (BOCSAR),  
 New South Wales, Australia. Processed and anonymized datasets used in this study  
