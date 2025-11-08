@@ -1,0 +1,15 @@
+######################################
+###Total Theft Incidents in New South Wales###
+######################################
+
+This variable captures the monthly total number of theft-related criminal incidents recorded by law enforcement authorities in New South Wales (NSW). The data were obtained from the publicly accessible BOCSAR Criminal Offences Dataset, maintained by the Bureau of Crime Statistics and Research (BOCSAR), NSW. For this study, the relevant dataset was retrieved by selecting the file titled “Recorded Criminal Incidents by month – All of NSW” (see 02_Total_theft_NSW.png) and is stored in the project directory "01_Data/02_Raw_original_data/", named "05_Incident_by_NSW.xlsx"
+
+The data reflect raw administrative records, with a time span from January 1995 to March 2025, and are measured as the number of reported incidents per month. For analytical purposes, all theft-related offense categories were extracted and aggregated on a monthly basis to construct the Total_Theft_Incidents indicator. This variable serves to capture the broader trend in property crime, providing a comparative benchmark for evaluating the behavioral distinctiveness and potential substitution mechanisms related to traffic copper cable theft.
+
+Details regarding the transformation of this variable—including logarithmic conversion, lag construction, and model integration—are fully documented in the project's "02_Scripts" directory.
+
+Source: https://bocsar.nsw.gov.au/statistics-dashboards/open-datasets/criminal-offences-data.html
+
+
+Last updated: 23 July 2025
+Maintainer: [Hongbo Zhao / Contact: hongbo.zhao@uqconnect.edu.au]
