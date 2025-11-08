@@ -53,7 +53,7 @@ Detailed variable definitions and preprocessing notes are available in `/01_Data
 ## Reproducibility and Execution
 
 ### Environment and Dependencies
-This project requires **R (≥ 4.4.2)** and **Quarto (≥ 1.7.32)**. All required R packages are automatically installed and loaded through `/02_Scripts/02_Required_Packages_and_Setup/`.  No additional configuration is needed once the repository is cloned.
+This project requires **R (≥ 4.4.2)** and **Quarto (≥ 1.7.32)**. All required R packages are automatically installed and loaded through `/02_Scripts/01_Required_Packages_and_Setup/`.  No additional configuration is needed once the repository is cloned.
 
 
 ### Running the Workflow
@@ -61,6 +61,6 @@ To reproduce all analyses and results, open the project file `Github.Rproj` in *
 
 ```r
 source("Run_all.R")
-```r
+```
 
 This script sequentially executes all modules — including data preprocessing, model estimation (Log–log, ARIMAX, and XGBoost), and result generation — providing a complete end-to-end reproducible workflow.
