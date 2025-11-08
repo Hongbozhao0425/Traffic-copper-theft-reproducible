@@ -1,5 +1,4 @@
-###Predicting Traffic Copper Cable Theft and Its Contributing Factors
-*A Reproducible Time-Series Modelling Approach*
+#Predicting Traffic Copper Cable Theft and Its Contributing Factors - A Reproducible Time-Series Modelling Approach
 
 
 ## Overview
