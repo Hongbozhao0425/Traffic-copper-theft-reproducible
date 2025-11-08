@@ -57,10 +57,15 @@ This project requires **R (≥ 4.4.2)** and **Quarto (≥ 1.7.32)**. All require
 
 
 ### Running the Workflow
-To reproduce all analyses and results, open the project file `Github.Rproj` in **RStudio**,  and execute the following command in the R console:
+To reproduce all analyses and results:
+
+1. **Open the project**  
+   Launch the project file `Github.Rproj` in **RStudio** (or open the repository root folder as your working directory).
+
+2. **Run the master script**  
+   In the **R Console** (bottom-left panel in RStudio), enter the following command:
 
 ```r
 source("Run_all.R")
 ```
-
-This script sequentially executes all modules — including data preprocessing, model estimation (Log–log, ARIMAX, and XGBoost), and result generation — providing a complete end-to-end reproducible workflow.
+This command will automatically execute the full reproducible workflow — including data preprocessing, model estimation (Log–log, ARIMAX, and XGBoost), and result generation — producing all outputs exactly as presented in the manuscript.
