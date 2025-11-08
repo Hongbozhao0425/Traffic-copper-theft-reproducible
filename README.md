@@ -41,7 +41,7 @@ Detailed variable definitions and preprocessing notes are available in `/01_Data
 
 ## Analysis and Results
 
-This section presents the main results obtained from the R-based analyses described in the manuscript. All **figures** were generated directly from the analytical outputs of the R scripts,  while the **data tables** were manually summarised from these results to improve clarity and readability. To ensure transparency and traceability of all numerical values, each data table in the final *Reproducible Manuscript* includes the corresponding R code embedded right below the table.  By running these embedded code blocks, readers can directly reproduce the values shown in each table.
+This section presents the main results obtained from the R-based analyses described in the manuscript. All **figures** were generated directly from the analytical outputs of the R scripts,  while the **data tables** were programmatically derived and manually formatted for clarity. To ensure transparency and traceability of all numerical values, each data table in the final **Reproducible Manuscript** includes the corresponding R code embedded right below the table.  By running these embedded code blocks, readers can directly reproduce the values shown in each table.
 
 The results below are provided to illustrate the outputs produced by the reproducible scripts，detailed interpretation and discussion can be found in the main manuscript.  
 
