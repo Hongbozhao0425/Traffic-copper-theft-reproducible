@@ -102,9 +102,7 @@ All required R packages are declared in the following script:  `02_Scripts/01_Re
 
 During the manuscript reproduction, **users do not need to run this setup script separately**,  as the same environment initialization has already been embedded within the main manuscript file:  `04_Manuscript/final_manuscript.qmd` .
 
-When rendering this `.qmd` file in RStudio, Quarto will automatically load all required packages and dependencies. Manual execution of the setup script is only necessary when readers intend to reproduce the **full analytical process** of the Log–log, ARIMAX, and XGBoost models — including multiple rounds of model iteration, parameter comparison, and final model selection.
-
-These model scripts are located in:  `02_Scripts/`.
+When rendering this `.qmd` file in RStudio, Quarto will automatically load all required packages and dependencies. Manual execution of the setup script is only necessary when readers intend to reproduce the **full analytical process** of the Log–log, ARIMAX, and XGBoost models — including multiple rounds of model iteration, parameter comparison, and final model selection. These model scripts are located in:  `02_Scripts/`.
 
 ### 3. Step-by-Step Reproduction Guide
 #### Scenario 1: Reproducing the Main Manuscript (`04_Manuscript/Final-version.qmd`)
