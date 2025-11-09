@@ -1,0 +1,324 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+```{r}
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+```
+
+# XGBoost Specification and Reproducibility Protocol
+
+The XGBoost model (Extreme Gradient Boosting) was implemented as a machine-learning extension to complement econometric models by capturing potential nonlinearities and complex feature interactions that traditional regression and ARIMAX frameworks may overlook.\
+Given that traffic copper cable theft incidents represent count-based, non-negative events, the model adopts a Poisson objective with the `"count:poisson"` loss function, aligning with the discrete nature of crime frequency data.\
+XGBoost builds an ensemble of regression trees iteratively, where each tree learns to correct the residual errors from the previous iteration. This gradient-based additive mechanism allows the model to represent flexible nonlinear mappings between predictors and target variables, while built-in L1/L2 regularization terms prevent overfitting and enhance generalization.
+
+To account for temporal dependence and avoid data leakage, the model uses an expanding-origin cross-validation strategy. Each iteration advances chronologically, ensuring that the validation set strictly follows the training window. This setup simulates real-world forecasting scenarios, where only past data are available to predict future events.\
+The training window was set to a minimum of 72 months, validation to 12 months, and a 2-month gap between them, advancing every three months until the training dataset was exhausted.
+
+A grid search was conducted across key hyperparameters to balance model complexity and interpretability:
+
+-   `max_depth ∈ {3, 5, 7}` controls tree depth;
+
+-   `max_depth ∈ {3, 5, 7}` controls tree depth;
+
+-   `subsample ∈ {0.6, 0.8}` defines the sampling proportion per iteration;
+
+-   `colsample_bytree ∈ {0.6, 0.8}` regulates feature randomness.
+
+This configuration ensures that model learning is both robust and resistant to overfitting.
+
+Using the defined grid, the model was trained on each fold of the expanding-origin CV. For each configuration, the mean negative log-likelihood (“poisson-nloglik”) was used as the evaluation metric, and the model with the lowest mean validation loss was selected as optimal. The best hyperparameter combination was then applied to retrain the model on the full training dataset using the median of the best iteration counts (`nrounds`) obtained across folds, ensuring stable convergence without excessive computation.
+
+```{r}
+X_train_1 <- model.matrix(
+  ~ cases_lag1_diff + Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag +
+    Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec,
+  data = train_data
+)
+
+X_test_1 <- model.matrix(
+  ~ cases_lag1_diff + Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag +
+    Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec,
+  data = test_data
+)
+
+# DMatrix
+dtrain <- xgb.DMatrix(data = X_train_1, label = train_data$cases)
+dtest  <- xgb.DMatrix(data = X_test_1)
+
+# Hyperparameter grid
+grid <- expand.grid(
+  max_depth = c(3, 5, 7),
+  eta = c(0.01, 0.05, 0.1),
+  subsample = c(0.6, 0.8),
+  colsample_bytree = c(0.6, 0.8)
+)
+
+# Forward expanding window: using only past → future, with a minimum training window
+make_expanding_origin_folds <- function(n, V = 12, gap = 2, min_train = 60, step = 1) {
+  # n: Number of training samples (number of rows in train_data)
+  # V: Validation window length (months)
+  # gap: Gap between training and validation (months)
+  # min_train: Minimum training window length (months)
+  # step: Step size for moving the origin forward (months)
+
+  folds <- list()
+  # Training window origin starts from min_train, ensuring validation segment doesn’t exceed range
+  origin_max <- n - gap - V
+  if (origin_max < min_train) {
+    warning("sample size is too small")
+    return(folds)
+  }
+
+  k <- 1
+  for (origin in seq(min_train, origin_max, by = step)) {
+    train_idx <- 1:origin
+    val_start <- origin + gap + 1
+    val_end   <- origin + gap + V
+    valid_idx <- val_start:val_end
+    folds[[k]] <- list(train = train_idx, valid = valid_idx)
+    k <- k + 1
+  }
+  folds
+}
+
+# Set CV parameters (adjustable according to your data/model)
+V         <- 12   # Validation window length
+gap       <- 2    # Gap between training and validation
+min_train <- 72   # Minimum training length: recommended 60; can be reduced if sample size is small
+step      <- 3    # Move one step each time (can set to 2 or 3 periods)
+
+n <- nrow(train_data)
+folds <- make_expanding_origin_folds(n, V = V, gap = gap, min_train = min_train, step = step)
+cat("Expanding-origin CV:", length(folds), "\n")
+if (length(folds) == 0) stop("Forward expanding CV failed to create valid folds")
+
+# Grid search (same as before, but use the defined folds)
+best_score   <- Inf
+best_param   <- list()
+best_nrounds <- 0
+
+for (i in 1:nrow(grid)) {
+  param <- list(
+    objective        = "count:poisson",
+    eval_metric      = "poisson-nloglik",
+    max_depth        = grid$max_depth[i],
+    eta              = grid$eta[i],
+    subsample        = grid$subsample[i],
+    colsample_bytree = grid$colsample_bytree[i]
+  )
+
+  fold_scores <- numeric(length(folds))
+  fold_iters  <- numeric(length(folds))
+
+  for (k in seq_along(folds)) {
+    tr <- folds[[k]]$train
+    va <- folds[[k]]$valid
+
+    dtrain_k <- xgb.DMatrix(X_train_1[tr, ], label = train_data$cases[tr])
+    dvalid_k <- xgb.DMatrix(X_train_1[va, ], label = train_data$cases[va])
+
+    set.seed(123 + k)
+    mdl <- xgb.train(
+      params                = param,
+      data                  = dtrain_k,
+      nrounds               = 150,
+      early_stopping_rounds = 10,
+      watchlist             = list(train = dtrain_k, valid = dvalid_k),
+      verbose               = 0
+    )
+
+    fold_scores[k] <- mdl$best_score
+    fold_iters[k]  <- mdl$best_iteration
+  }
+
+  cv_mean <- mean(fold_scores)
+
+  if (cv_mean < best_score) {
+    best_score   <- cv_mean
+    best_param   <- param
+    best_nrounds <- as.integer(median(fold_iters))
+  }
+}
+
+cat("Best CV mean (poisson-nloglik):", round(best_score, 6), "\n")
+print("Best parameters:"); print(best_param)
+cat("Best nrounds (median of folds):", best_nrounds, "\n")
+
+
+
+# Retrain on the entire training set with the best parameters
+xgb_final <- xgb.train(
+  params  = best_param,
+  data    = dtrain,
+  nrounds = best_nrounds,
+  verbose = 1
+)
+
+# Predict on the test set
+xgb_pred <- predict(xgb_final, dtest)
+
+# Calculate test error metrics
+final_predictions_xgb <- xgb_pred
+final_residuals_xgb   <- test_data$cases - final_predictions_xgb
+
+# Baseline model: naive forecast
+naive_forecast <- lag(test_data$cases, 1)
+
+# Remove NA rows (first row has no lagged value)
+valid_idx <- !is.na(naive_forecast)
+```
+
+## Forecasting and Residual Analysis
+
+After model training, forecasts were generated on the test dataset. The residuals (actual minus predicted theft counts) were evaluated through Box–Ljung, Shapiro–Wilk, and Breusch–Pagan tests to verify serial independence, normality, and homoscedasticity, respectively.\
+
+Visual residual diagnostics—including Q–Q plots and ACF/PACF graphs—further assessed whether residuals resembled white noise.\
+
+Collectively, these tests ensure that the XGBoost model captures structural patterns without leaving systematic autocorrelation or bias unaddressed.
+
+```{r}
+# Ljung–Box test
+box_ljung_test_xgb <- Box.test(final_residuals_xgb, lag = 20, type = "Ljung-Box")
+print(box_ljung_test_xgb)
+
+# Shapiro–Wilk test
+shapiro_test_xgb <- shapiro.test(final_residuals_xgb)
+print(shapiro_test_xgb)
+
+# Breusch–Pagan 
+if (!require(lmtest)) install.packages("lmtest")
+library(lmtest)
+bp_model <- lm(final_residuals_xgb^2 ~ final_predictions_xgb)
+bptest_result <- bptest(bp_model)
+print(bptest_result)
+
+# Q-Q plot
+qqnorm(final_residuals_xgb, main = "Normal Q-Q Plot of XGBoost Residuals")
+qqline(final_residuals_xgb, col = "red", lwd = 2)
+
+# ACF / PACF plot
+if (!require(forecast)) install.packages("forecast")
+library(forecast)
+
+acf_plot <- ggAcf(final_residuals_xgb, lag.max = 13) +
+  labs(title = "ACF of XGBoost Residuals",
+       x = "Lag (Months)", y = "Autocorrelation") +
+  theme_minimal(base_size = 12)
+
+pacf_plot <- ggPacf(final_residuals_xgb, lag.max = 13) +
+  labs(title = "PACF of XGBoost Residuals",
+       x = "Lag (Months)", y = "Partial Autocorrelation") +
+  theme_minimal(base_size = 12)
+
+print(acf_plot)
+print(pacf_plot)
+```
+
+## SHAP-Based Feature Importance
+
+To interpret the contribution of each predictor within the black-box XGBoost model, SHAP (SHapley Additive exPlanations) values were computed.\
+
+These values quantify each feature’s average marginal contribution to model predictions based on cooperative game theory, enabling decomposition of global predictions into individual variable effects.\
+
+Feature importance was expressed as the percentage share of absolute SHAP values, revealing the relative influence of each driver on theft prediction.\
+
+Results indicate that copper price, total theft, and legislative intervention are the dominant factors, aligning closely with the econometric findings from log–log and ARIMAX models.
+
+```{r}
+# SHAP Importance
+if (!require(shapviz)) install.packages("shapviz")
+library(shapviz)
+
+# Reconstruct training matrix
+X_train_1 <- model.matrix(
+  ~ cases_lag1_diff + Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag +
+    Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec,  # Fourier terms replace monthly dummy variables
+  data = train_data
+)
+
+# Calculate SHAP values
+shap_values_train <- predict(xgb_final, dtrain, predcontrib = TRUE)
+shap_values_train_fixed <- shap_values_train[, !colnames(shap_values_train) %in% "BIAS", drop = FALSE]
+
+# Convert to data frame and sort
+shap_means <- colMeans(abs(shap_values_train_fixed))
+shap_pct <- shap_means / sum(shap_means) * 100
+shap_df <- data.frame(
+  Feature = names(shap_means),
+  Mean_SHAP_Value = shap_means,
+  Importance_Percentage = shap_pct
+) %>% arrange(desc(Importance_Percentage))
+
+print(shap_df)
+
+# Visualize SHAP feature importance
+library(ggplot2)
+shap_plot_df <- shap_df %>%
+  arrange(Importance_Percentage) %>%
+  mutate(Feature = factor(Feature, levels = Feature))
+
+shap_plot <- ggplot(shap_plot_df, aes(x = Importance_Percentage, y = Feature)) +
+  geom_bar(stat = "identity", fill = "#1F77B4", width = 0.6) +
+  labs(title = "SHAP Feature Importance (Percentage View)",
+       x = "Relative Importance (%)",
+       y = "Predictor Variables") +
+  theme_minimal(base_size = 12)
+
+print(shap_plot)
+```
+
+## Visualization and Result Export
+
+Predicted and observed theft cases were visualised using quarterly step plots for direct comparison, maintaining identical formatting to ARIMAX for methodological consistency.\
+
+The near-overlapping trajectories of predicted and actual series confirm the model’s strong alignment with empirical dynamics.\
+
+Together with the error metrics (ME, RMSE, MAE, MPE, MAPE, MASE, R²), these visualisations demonstrate that XGBoost successfully captures key temporal patterns of traffic copper cable theft while retaining interpretability via SHAP analysis.
+
+```{r}
+# XGBoost: plot in the same way as ARIMAX
+stopifnot(length(final_predictions_xgb) == nrow(test_data))
+test_data$predicted_cases <- as.numeric(final_predictions_xgb)
+test_data$actual_cases    <- test_data$cases
+
+windowsFonts(Times = windowsFont("Times New Roman"))
+
+library(ggplot2)
+library(lubridate)
+
+ggplot(test_data, aes(x = date)) +
+  geom_step(aes(y = actual_cases,    color = "Actual Cases"),    size = 1.2) +
+  geom_step(aes(y = predicted_cases, color = "Predicted Cases"), size = 1.2) +
+  scale_color_manual(
+    values = c("Actual Cases" = "black",
+               "Predicted Cases" = "red")
+  ) +
+  scale_x_date(
+    date_breaks = "3 months",
+    labels = function(x) paste0(format(x, "%Y"), "-Q", lubridate::quarter(x))
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 20)
+  ) +
+  labs(
+    title = "Comparison of Predicted vs. Actual Cases by Quarter",
+    x = "Quarter",
+    y = "Number of Theft Cases",
+    color = "Legend"
+  ) +
+  theme_minimal() +
+  theme(
+    text        = element_text(family = "Times"),
+    plot.title  = element_text(size = 14, face = "bold"),
+    axis.title  = element_text(size = 12),
+    axis.text   = element_text(size = 10),
+    legend.title= element_text(size = 10),
+    legend.text = element_text(size = 10)
+  )
+```
+
+Last updated: 23 July 2025 Maintainer: \[Hongbo Zhao / Contact: hongbo.zhao\@uqconnect.edu.au\]

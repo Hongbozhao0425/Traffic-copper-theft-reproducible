@@ -1,0 +1,228 @@
+---
+title: "Data_Preprocessing"
+author: "Hongbo_Zhao"
+format: html
+editor: visual
+---
+
+## Data Preprocessing Script
+
+This script performs unified preprocessing of raw data from multiple sources, including copper prices, unemployment rate, general theft rate, copper scrap imports, and traffic-related copper cable theft records. All steps maintain data integrity and ensure temporal alignment for subsequent modeling.
+
+## 1. Preprocessing Copper Price Data
+
+The raw copper price data are recorded daily (MM/DD/YYYY). To ensure temporal consistency, this section converts them into monthly median values. Key steps include date format conversion, filtering by the target period, and monthly aggregation.
+
+```{r}
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+# Load raw copper price data
+df_raw_Price <- read_csv(here("01_Data", "02_Raw_original_data", "03_chart_20250721T044019.csv"))
+
+# Convert date format
+df_raw_Price <- df_raw_Price %>%
+  mutate(Date = mdy(Date))  # Original format: MM/DD/YYYY
+
+# Filter data to the target analysis period
+df_filtered_Price <- df_raw_Price %>%
+  filter(Date >= as.Date("2010-01-01") & Date <= as.Date("2023-06-01"))
+
+# Aggregate to monthly median copper prices
+monthly_copper <- df_filtered_Price %>%
+  mutate(month = floor_date(Date, "month")) %>%
+  group_by(month) %>%
+  summarise(Copper_price = median(Value, na.rm = TRUE)) %>%
+  ungroup()
+```
+
+## 2. Preprocessing General Total_theft
+
+The dataset contains multiple subcategories of theft with monthly counts. This section focuses on selected property-related theft categories and aggregates them into a total theft rate. Main tasks include filtering target subcategories, extracting time-related columns, reshaping data to long format, and summarizing monthly totals.
+
+```{r}
+# Load raw theft data
+df_theft <- read_excel(here("01_Data", "02_Raw_original_data", "05_Incident_by_NSW.xlsx"))
+
+# Define target subcategories
+target_subcategories <- c(
+  "Break and enter dwelling",
+  "Break and enter non-dwelling",
+  "Receiving or handling stolen goods",
+  "Motor vehicle theft",
+  "Steal from motor vehicle",
+  "Steal from retail store",
+  "Steal from dwelling",
+  "Steal from person",
+  "Stock theft",
+  "Fraud",
+  "Other theft"
+)
+
+# Filter to target subcategories
+df_filtered <- df_theft %>%
+  filter(Subcategory %in% target_subcategories)
+
+# Extract time-related columns and reshape to long format
+all_time_cols <- names(df_filtered)[6:ncol(df_filtered)]
+
+monthly_theft <- df_filtered %>%
+  select(all_of(all_time_cols)) %>%
+  summarise(across(everything(), ~ sum(.x, na.rm = TRUE))) %>%
+  pivot_longer(cols = everything(), names_to = "date", values_to = "Theft_rate") %>%
+  mutate(date = as.Date(as.numeric(date), origin = "1899-12-30"))
+
+# Filter to the target time range
+monthly_theft <- monthly_theft %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01"))
+```
+
+## 3. Preprocessing Unemployment Rate (NSW)
+
+This part extracts the unemployment rate for NSW from an ABS wide-format Excel file. Raw data start at row 11, and column 49 contains the unemployment rate. After cleaning, the data are converted into a monthly time series (2010–2023).
+
+```{r}
+df_unwork <- read_excel(
+  path = here("01_Data", "02_Raw_original_data", "02_6202004.xlsx"),
+  sheet = "Data1",
+  col_names = FALSE
+)
+
+monthly_unwork <- df_unwork %>%
+  dplyr::slice(11:nrow(.)) %>%
+  select(date_raw = 1, unwork_rate = 49) %>%
+  mutate(
+    date = as.Date(as.numeric(date_raw), origin = "1899-12-30"),
+    unwork_rate = as.numeric(unwork_rate)
+  ) %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01")) %>%
+  select(date, unwork_rate)
+```
+
+## 4. Preprocessing Copper Scrap Imports from China
+
+The monthly dataset begins at row 30, with the first two columns representing the date and import value.\
+This section converts numeric dates to standard `Date` format, removes missing observations, filters the range (2010–2023), and produces a clean monthly import time series.
+
+```{r}
+df_scrap <- read_excel(
+  path = here("01_Data", "02_Raw_original_data", "06_Non_Ferrous_Metal_Import_Copper_Waste.xlsx"),
+  col_names = FALSE
+)
+
+monthly_scrap <- df_scrap %>%
+  dplyr::slice(30:n()) %>%
+  select(date_raw = 1, value_raw = 2) %>%
+  mutate(
+    date = as.Date(as.numeric(date_raw), origin = "1899-12-30"),
+    copper_scrap_import = as.numeric(value_raw)
+  ) %>%
+  filter(!is.na(date) & !is.na(copper_scrap_import)) %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01")) %>%
+  select(date, copper_scrap_import)
+```
+
+## 5. Preprocessing Traffic Copper Theft Records
+
+This dataset provides the main dependent variable of the study—monthly copper cable theft incidents from transport infrastructure. Steps include renaming columns, standardizing date formats, and filtering the target analysis period to ensure consistency with other datasets.
+
+```{r}
+traffic_theft <- read_excel(
+  here("01_Data", "02_Raw_original_data", "04_copper_theft_NSW.xlsx")
+) %>%
+  rename(date = Date, time_unit = total_t) %>%
+  mutate(date = as.Date(date))
+```
+
+## 6. Merging All Preprocessed Datasets
+
+All preprocessed datasets (copper price, scrap imports, unemployment rate, and total theft rate) are merged into the main traffic copper theft dataset using the date as the key. This ensures full temporal alignment. The merged data structure is inspected to confirm integrity and completeness.
+
+```{r}
+# Rename variables for consistent merging
+monthly_theft <- monthly_theft %>% rename(total_theft = Theft_rate)
+monthly_copper <- monthly_copper %>% rename(date = month)
+
+# Ensure all date columns are in Date format
+monthly_copper$date <- as.Date(monthly_copper$date)
+monthly_scrap$date <- as.Date(monthly_scrap$date)
+monthly_unwork$date <- as.Date(monthly_unwork$date)
+monthly_theft$date <- as.Date(monthly_theft$date)
+
+# Merge all datasets
+combined_data <- traffic_theft %>%
+  left_join(monthly_copper, by = "date") %>%
+  left_join(monthly_scrap, by = "date") %>%
+  left_join(monthly_unwork, by = "date") %>%
+  left_join(monthly_theft, by = "date")
+
+# Inspect the merged data
+str(combined_data)
+summary(combined_data)
+```
+
+## 7. Final Variable Renaming and Environmental Cleanup
+
+To improve readability and ensure standardization, variable names are unified (e.g., `Unwork_NSW`, `Scrap_Imports_CN`, `Total_theft`). All intermediate objects are removed, retaining only essential datasets (`combined_data`, etc.). Basic statistical summaries are computed to validate the merged data.
+
+```{r}
+# Rename variables for clarity and standardization
+combined_data <- combined_data %>%
+  rename(
+    Scrap_Imports_CN = copper_scrap_import,
+    Unwork_NSW = unwork_rate,
+    Total_theft = total_theft
+  )
+
+# Keep only useful final datasets and remove all intermediate variables
+useful_vars <- c("monthly_copper", "monthly_scrap", "monthly_theft", "monthly_unwork", "combined_data")
+rm(list = setdiff(ls(), useful_vars))
+```
+
+```{r}
+library(dplyr)
+
+med_tbl <- combined_data %>%
+  transmute(
+    Total_theft = as.numeric(Total_theft),
+    cases       = as.numeric(cases)
+  ) %>%
+  filter(is.finite(Total_theft), is.finite(cases), Total_theft > 0) %>%
+  summarise(
+    n_obs         = n(),
+    median_cases  = median(cases, na.rm = TRUE),                 
+    median_total  = median(Total_theft, na.rm = TRUE),           
+    median_share  = median(cases / Total_theft, na.rm = TRUE)   
+  )
+
+print(med_tbl)
+```
+
+```{r}
+df_var <- combined_data %>%
+  transmute(
+    date   = as.Date(date),
+    total  = as.numeric(Total_theft),  # Monthly total theft incidents in NSW
+    copper = as.numeric(cases)         # Monthly traffic copper cable theft incidents
+  ) %>%
+  filter(complete.cases(total, copper)) %>%
+  mutate(total_excl = pmax(total - copper, 0))  # Total theft excluding copper cable theft (ensure non-negative)
+
+# 1) Calculate the variance of total theft and of total theft excluding copper cable theft
+var_total    <- var(df_var$total,      na.rm = TRUE)
+var_total_ex <- var(df_var$total_excl, na.rm = TRUE)
+
+# 2) Compute the variance contribution rate (Δ_var) of copper cable theft to the total theft variance
+delta_var_pct <- (var_total - var_total_ex) / var_total * 100
+
+# 3) Output a summary table including observation count, variances, and Δ_var
+contrib_tbl <- tibble::tibble(
+  n_obs          = nrow(df_var),
+  var_total      = var_total,
+  var_total_excl = var_total_ex,
+  delta_var_pct  = delta_var_pct
+)
+print(contrib_tbl)
+```
+
+Last updated: 23 July 2025 Maintainer: \[Hongbo Zhao / Contact: hongbo.zhao\@uqconnect.edu.au\]\
+\
