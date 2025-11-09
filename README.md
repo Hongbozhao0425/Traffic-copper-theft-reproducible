@@ -89,10 +89,14 @@ This repository releases all datasets, analysis scripts, and reproducible Quarto
 
 
 ## Reproducibility and Execution
+
+### 1. Software Environment
+
 All analyses and report generation were conducted under the following software environment, without requiring GPU or high-performance computing resources.
 
 <img width="790" height="233" alt="e6fa33b91f30f6b454d44c15216798f0" src="https://github.com/user-attachments/assets/c2e6017d-9e75-4c97-8ad1-702e5fa2974b" />
 
+### 2. Dependency Setup
 
 All required R packages are declared in the following script:  `02_Scripts/01_Required_Packages_and_Setup.R`,which defines the complete analytical environment for the project, ensuring consistency across all data processing and model execution steps.
 
@@ -101,6 +105,8 @@ During reproduction, **users do not need to run this setup script separately**, 
 When rendering this `.qmd` file in RStudio, Quarto will automatically load all required packages and dependencies. Manual execution of the setup script is only necessary when readers intend to reproduce the **full analytical process** of the Log–log, ARIMAX, and XGBoost models — including multiple rounds of model iteration, parameter comparison, and final model selection.
 
 These model scripts are located in:  `02_Scripts/`.
+
+### 3. Step-by-Step Reproduction Guide
 
 
 
