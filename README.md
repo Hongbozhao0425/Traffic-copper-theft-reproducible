@@ -100,7 +100,7 @@ All analyses and report generation were conducted under the following software e
 
 All required R packages are declared in the following script:  `02_Scripts/01_Required_Packages_and_Setup.R`,which defines the complete analytical environment for the project, ensuring consistency across all data processing and model execution steps.
 
-During reproduction, **users do not need to run this setup script separately**,  as the same environment initialization has already been embedded within the main manuscript file:  `04_Manuscript/final_manuscript.qmd` .
+During the manuscript reproduction, **users do not need to run this setup script separately**,  as the same environment initialization has already been embedded within the main manuscript file:  `04_Manuscript/final_manuscript.qmd` .
 
 When rendering this `.qmd` file in RStudio, Quarto will automatically load all required packages and dependencies. Manual execution of the setup script is only necessary when readers intend to reproduce the **full analytical process** of the Log–log, ARIMAX, and XGBoost models — including multiple rounds of model iteration, parameter comparison, and final model selection.
 
