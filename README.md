@@ -113,6 +113,9 @@ These model scripts are located in:  `02_Scripts/`.
 <img width="1025" height="491" alt="image" src="https://github.com/user-attachments/assets/da46bb23-f246-4b83-8346-22b2526e3536" />
 <img width="1024" height="1097" alt="image" src="https://github.com/user-attachments/assets/616d1aa8-bde0-4a18-9811-d037e07eb6f1" />
 <img width="1024" height="1287" alt="image" src="https://github.com/user-attachments/assets/03e1cbf9-acb1-4a8b-9c07-792ec196ffe2" />
+<img width="315" height="83" alt="52286d514ae9d8b1c1d6ad84ce541fbf" src="https://github.com/user-attachments/assets/167caf76-b854-488c-b8c9-c069eba39b2c" />
+
+
 
 #### Step 2: Reproducing the Full Analytical Workflow (`02_Scripts/`)
 <img width="7049" height="12648" alt="4adb940bcf63fa8f20bd6620de864ee6" src="https://github.com/user-attachments/assets/2029293e-21ab-4183-80c2-cf7c0a89bee1" />
