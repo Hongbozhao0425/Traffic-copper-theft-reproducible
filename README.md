@@ -107,8 +107,11 @@ When rendering this `.qmd` file in RStudio, Quarto will automatically load all r
 These model scripts are located in:  `02_Scripts/`.
 
 ### 3. Step-by-Step Reproduction Guide
-<img width="1023" height="577" alt="image" src="https://github.com/user-attachments/assets/12e23836-e9f0-4eca-902e-64d83378eb67" />
-<img width="1025" height="491" alt="image" src="https://github.com/user-attachments/assets/64a0b10b-9b0c-4a7e-948f-9e322f1b5d7d" />
+<img width="1023" height="573" alt="image" src="https://github.com/user-attachments/assets/27126fee-5a77-4c58-ad37-e009eba542e5" />
+<img width="1025" height="491" alt="image" src="https://github.com/user-attachments/assets/da46bb23-f246-4b83-8346-22b2526e3536" />
+<img width="1024" height="1097" alt="image" src="https://github.com/user-attachments/assets/616d1aa8-bde0-4a18-9811-d037e07eb6f1" />
+<img width="1024" height="1287" alt="image" src="https://github.com/user-attachments/assets/03e1cbf9-acb1-4a8b-9c07-792ec196ffe2" />
+
 
 
 
