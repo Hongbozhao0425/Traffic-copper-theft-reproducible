@@ -88,9 +88,10 @@ The repository follows a four-layer reproducible research framework:
 This repository releases all datasets, analysis scripts, and reproducible Quarto (.qmd) documents, supporting transparent and verifiable research and policy assessment.  
 
 
-## Reproducibility and Execution (还需要补全一个R studio的版本)
+## Reproducibility and Execution
+All analyses and report generation were conducted under the following software environment，without requiring GPU or high-performance computing resources.
+<img width="790" height="233" alt="e6fa33b91f30f6b454d44c15216798f0" src="https://github.com/user-attachments/assets/c2e6017d-9e75-4c97-8ad1-702e5fa2974b" />
 
-（待定）
 
 
 ## Citation
