@@ -107,7 +107,7 @@ When rendering this `.qmd` file in RStudio, Quarto will automatically load all r
 These model scripts are located in:  `02_Scripts/`.
 
 ### 3. Step-by-Step Reproduction Guide
-#### Step 1: Reproducing the Main Manuscript (`04_Manuscript/Final-version.qmd`)
+#### scenario 1: Reproducing the Main Manuscript (`04_Manuscript/Final-version.qmd`)
 
 <img width="1023" height="573" alt="image" src="https://github.com/user-attachments/assets/27126fee-5a77-4c58-ad37-e009eba542e5" />
 <img width="1025" height="491" alt="image" src="https://github.com/user-attachments/assets/da46bb23-f246-4b83-8346-22b2526e3536" />
@@ -117,7 +117,7 @@ These model scripts are located in:  `02_Scripts/`.
 
 
 
-#### Step 2: Reproducing the Full Analytical Workflow (`02_Scripts/`)
+#### scenario 2: Reproducing the Full Analytical Workflow (`02_Scripts/`)
 <img width="7049" height="12648" alt="4adb940bcf63fa8f20bd6620de864ee6" src="https://github.com/user-attachments/assets/2029293e-21ab-4183-80c2-cf7c0a89bee1" />
 
 
