@@ -28,7 +28,7 @@ The main contributions of this study are as follows:
 
 This repository includes all datasets used in the study, covering economic, legislative, and crime-related indicators for **New South Wales, Australia (2010–2023)**.
 
-- **Traffic Copper Cable Theft:**  Monthly dataset obtained from the New South Wales Bureau of Crime Statistics and Research (BOCSAR),  covering reported traffic copper cable theft   incidents across New South Wales (2010–2023).
+- **Traffic Copper Cable Theft:**  Monthly dataset obtained from the New South Wales Bureau of Crime Statistics and Research (BOCSAR),  covering reported traffic copper cable theft   incidents across New South Wales.
 - **Overall Theft in NSW:** Monthly property crime index from the *NSW Bureau of Crime Statistics and Research (BOCSAR)*.  
 - **Unemployment Rate:** Monthly unemployment rate (%) from the *Australian Bureau of Statistics (ABS)*.  
 - **Global Copper Price:** Monthly median COMEX spot prices from *Macrotrends*.  
