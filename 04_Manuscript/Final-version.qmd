@@ -1,0 +1,1600 @@
+---
+title: "Final_Version_Ready_to_Submit"
+author: "Hongbo"
+format: html
+editor: visual
+---
+
+# Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach
+
+Hongbo Zhao^a^, Zuduo Zheng a\*
+
+*a School of Civil Engineering, The University of Queensland, St. Lucia, Brisbane, 4072, Australia*
+
+^*∗*^Corresponding author; Email: zuduo.zheng\@uq.edu.au
+
+```{r}
+options(repos = c(CRAN = "https://cran.r-project.org"))
+```
+
+# Abstract
+
+Traffic copper cable theft has become a pressing challenge in the governance of transportation infrastructure, causing severe economic losses, public safety risks, and operational disruptions. However, existing studies have primarily focused on railway or general metal theft, with limited systematic empirical analysis in the transport sector. This study employs monthly data from New South Wales (2010–2023) to develop a reproducible time-series modelling framework that integrates log–log regression, ARIMAX, and XGBoost models, systematically evaluates the impacts of copper price fluctuations, overall theft levels, unemployment rates, China’s scrap copper imports, and legislative interventions on traffic copper cable theft, while also comparing the predictive performance of different models. The results demonstrate that copper prices and overall theft are stable, whereas unemployment and scrap imports exert no robust influence. Legislative interventions effectively reduce the baseline level of theft in the short term but fail to provide sustained deterrence, reflecting the adaptability of black-market demand and organized crime networks. Moreover, traffic copper cable theft incidents exhibit only limited seasonality, with minor peaks in May and September, and no strong cyclical patterns overall. All three models outperform the naïve monthly-lag baseline, with the log–log specification delivering the lowest prediction error, ARIMAX showing advantages in capturing seasonality and short-term shocks, and XGBoost providing complementary value in multi-variable interpretation. These findings indicate that traffic copper cable theft is primarily driven by market environments and broader crime dynamics, characterized by low inertia and strong immediate responsiveness. Beyond extending the scope of metal theft research, this study proposes an integrated governance framework encompassing source control, situational prevention, and predictive early-warning mechanisms, while ensuring full transparency and reproducibility through openly shared data and code.
+
+*Keywords:Transportation asset theft; Copper cable theft; Time series analysis; XGBoost; Reproducible research*
+
+# 1.  Introduction
+
+Copper, with its excellent electrical conductivity, corrosion resistance, and recyclability, is widely used in traffic signal control, intelligent transportation system (ITS) equipment, highway lighting systems ([Rharad & Hernandez, 2024]{.underline}). Among them, copper wires have become the most operable and rewarding target for criminals in terms of risk–reward trade-offs due to their high value, ubiquity, and accessibility ([Yazdani, 2024]{.underline}).
+
+Traffic copper cable theft has a significant impact on public safety and infrastructure operation, and has been listed as a key governance issue in many countries. In 2011, the UK’s Traffic Police Department listed it as the second most important security priority after terrorism ([Whiteacre, Terheide, & Biggs, 2015]{.underline}). The Queensland Transport and Resources Committee in Australia reported that traffic copper cable theft reduces night-time visibility, leading to high costs such as rework, insurance, and project delays ([Queensland Transport and Resources Committee, 2023]{.underline}). The California Department of Transportation further reported that the cost of repairing traffic signals and lighting facilities damaged by traffic copper cable theft reached 1.232 million US dollars in 2022 ([Yazdani, 2024]{.underline}). From a public safety perspective, the [Queensland Transport and Resources Committee (2023)]{.underline} stressed that exposed cables left after theft not only endanger pedestrians and maintenance workers but can also trigger fires, threatening both the environment and human safety. Similarly, [Francis and Shelley (2014)]{.underline}, drawing on case evidence from Ireland’s National Burn Center, reported that high-voltage electrical burns associated with copper cable theft frequently cause amputations and organ damage, with victims mainly among young and middle-aged workers. Therefore, traffic copper cable theft exhibits characteristics of high frequency, significant losses, and far-reaching chain impacts, posing a key hazard to public safety and infrastructure management.
+
+However, this problem has not been effectively curbed. Data from California shows that the number of cases rose from 2020 to 2022, with repair costs increasing by 143% within three years. Among them, the highway lighting system was most severely affected ([Yazdani, 2024]{.underline}). In response, [Robb, Coupe, and Ariel (2019)]{.underline} noted that the effectiveness of regulation is limited by inefficiency in investigation resources, uneven geographical response, offender characteristics, and initial misjudgment, resulting in a lack of precision in strategies and difficulty forming a forward-looking and effective allocation framework.
+
+Against this backdrop, this paper systematically examines the drivers and governance strategies of traffic copper cable theft. This study develops a multi-layered, reproducible analytical framework using traffic copper cable theft data from New South Wales, Australia, addressing existing research gaps. Key contributions include:
+
+1\) Expanding metal theft research to the understudied area of traffic copper cable theft, analyzing the impacts of copper prices, global scrap copper demand, unemployment, and general theft while identifying seasonal trends.
+
+2\) Incorporating legislative variables to differentiate short-term and cumulative effects, providing nuanced policy insights.
+
+3\) Comparing the log-log, ARIMAX and XGBoost models within a cross-method comparative framework, moving beyond the conventional regression and static time series models that dominate existing metal theft research, thereby yielding more robust findings and stronger quantitative support for prevention strategies.
+
+4\) Implementing a fully reproducible workflow in Quarto (.qmd in RStudio) that covers data processing, modelling, and output, thereby promoting transparency and reproducibility in transport crime analysis and policy assessment.
+
+Remainder of the paper is structured as follows: Section 2 reviews research progress and identifies key gaps; Section 3 describes data sources and preprocessing; Section 4 outlines model construction; Section 5 reports empirical findings and predictive performance; Section 6 discusses limitations and offers policy implications; and Section 7 concludes the paper by summarizing main findings and pointing out future research directions.
+
+# 2. Literature review
+
+## 2.1 Existing Studies on Metal Theft
+
+Given the limited empirical research on traffic copper cable theft, this section reviews broader studies on metal theft and railway copper theft. As shown in Figure 1, existing research reveals divergences regarding the drivers of metal theft and highlights key limitations, which will be discussed below.
+
+1\) Economic Drivers and Global Demand Factors
+
+Copper prices are a key driver of copper theft. [Sidebottom et al. (2011)]{.underline} used a log-log regression with 2,870 incidents from the British railway network between 2004 and 2007, accounting for serial correlation via an AR(1) process. Their findings showed that a 1% increase in copper prices was associated with a 2.8% rise in railway copper cable thefts. Further research by [Tomáš Brabenec & Montag (2017)]{.underline}, as well as [Depken and Stephenson (2016)]{.underline}, has confirmed this relationship across countries. According to principles of criminal economics ([Farrell et al., 2000]{.underline}) and rational choice theory ([Ahmad & Emeka, 2013]{.underline}), an increase in copper prices is likely to augment the anticipated benefits for offenders. Concurrently, existing levels of supervision and penal sanctions appear inadequate to deter such activities, thereby increasing the attractiveness of copper cable theft.
+
+China’s copper consumption relies heavily on imports, with scrap copper playing a central role and mainly sourced from developed economies such as the United States and Japan ([Liu et al., 2021]{.underline}). Weak oversight in recycling channels has enabled stolen copper to be laundered into these export flows ([Kooi, 2010]{.underline}). However, research has largely overlooked such supply–demand dynamics, leaving the link between global market demand and metal theft underexplored.
+
+2\) Socioeconomic Pressure and Unemployment Rate Effects
+
+In examining the link between unemployment and copper theft, [Depken and Stephenson (2016)]{.underline} employed three proxies for general copper theft—insurance claims, LexisNexis news coverage, and Google search indices—and reported no significant association, consistent with findings by [Sidebottom et al. (2011, 2014)]{.underline}. Building on this evidence, [Nguyen and McGlon (2013)]{.underline} further stated that unemployment, as a single form of economic adversity, is insufficient to account for offending behaviour. Accordingly, existing research on metal theft generally concludes that unemployment is not a primary driver of such offences.
+
+3\) Potential Links to Other Property Crimes
+
+In [Felson's (2006, pp. 59–79)]{.underline} 'crime ecosystem' theory, criminal activity results from the interaction of various legal and illegal behaviours within society. Based on this, [Depken and Stephenson (2016)]{.underline} identified a strong positive correlation between general theft and widespread metal theft, indicating that metal theft is part of a broader property crime pattern. Conversely, [Sidebottom et al. (2011, 2014)]{.underline}, analyzing copper cable theft in the British railway system, found no significant link between other theft types and fluctuations in railway copper cable theft. Thus, the relationship between metal theft and wider property crime patterns has not been established.
+
+4\) Legislative Interventions and Cross-Country Variations
+
+Legislative action against metal theft remains debated within criminology, with studies yielding divergent results. [Mares and Blackburn (2017)]{.underline}, through interrupted time series analysis, reported a nearly 50% immediate decrease in metal thefts following a scrap metal ordinance in St. Louis, surpassing reductions in other theft types. Conversely, [Tomáš Brabenec & Montag (2017)]{.underline}, using log–log regression and error correction models, found a 30–50% increase in metal theft after the 2010 Criminal Code reform in the Czech Republic. These conflicting results deepen the debate over the effectiveness of legislative reforms in reducing metal theft.
+
+5\) Temporal Patterns and Seasonality of Metal Theft
+
+According to Crime Pattern Theory ([Brantingham & Brantingham, 2021]{.underline}), the temporal variations in criminal patterns at different time scales are typically linked to the rhythmic cycles of routine non-criminal activities in society. However, the temporal patterns of metal theft have only been systematically examined in the study by [Ashby, Bowers, Borrion, & Fujiyama (2014)]{.underline}, who employed circular statistics and aoristic methods to reveal that railway metal theft exhibits significantly lower temporal concentration throughout the year compared to other property crimes.s.
+
+## 2.2 Identified Research Gaps
+
+Current literature confirms that metal prices serve as a significant exogenous factor influencing metal theft. However, most studies rely on data from around 2010, failing to capture recent fluctuations in global copper prices. Furthermore, debates and knowledge gaps persist regarding broader theft trends, legislative impacts, and seasonal variations affecting metal theft, with the majority of research focusing on general metal theft or railway contexts. Virtually no systematic analysis exists on copper cable theft in open-road transport infrastructure. Given the substantial differences in opportunity structures (e.g., target accessibility, exposure, and theft processes) and target attributes (e.g., road and intelligent transportation system cables) associated with traffic copper cable theft, targeted empirical investigation is imperative. These gaps have motivated this study.
+
+![](images/592e7df9b2a0b8809abf76831d4a51b9.png){fig-align="center"}
+
+Figure. 1: Research Gaps in Metal Theft Studies and the Positioning of This Study
+
+# 3. Data
+
+This section outlines the datasets used to construct external drivers and seasonal controls in the modelling framework.
+
+1\) Traffic Copper Cable Theft: Monthly records of traffic copper cable theft incidents in New South Wales from January 2010 to June 2023. This serves as the dependent variable, capturing thefts specifically targeting transport infrastructure.
+
+2\) Global Copper Price ([Macrotrends, 2009]{.underline}): Daily COMEX spot prices for copper (USD/pound) from February 1959 to July 2025, aggregated to monthly medians. This variable proxies the scrap copper market return level, a key driver of theft incentives.
+
+3\) Overall Theft in NSW ([NSW Bureau of Crime Statistics and Research, 2024]{.underline}): Monthly crime data from 1995 to 2025, covering eleven property theft categories (e.g., burglary, motor vehicle theft, retail theft, fraud), consolidated into a general theft index to test potential linkages with traffic copper cable theft. While a possible overlap with traffic copper cable theft cannot be ruled out due to different data sources, its negligible share of overall thefts (variance contribution of 1.36%) ensures no material bias in trend analysis.
+
+4\) Unemployment Rate in NSW ([Australian Bureau of Statistics, 2024]{.underline}): Monthly unemployment rate (%) from 1978 to 2025, used to assess the role of economic hardship in shaping traffic copper cable theft dynamics.
+
+5\) China’s Scrap Copper Imports ([CEIC, 2023]{.underline}): Customs-based records of scrap copper imports (thousand tonnes) from 2004 to 2024. This indicator captures global demand-side drivers influencing theft.
+
+6\) Legislation Variables (Derived from Traffic Copper Cable Theft Data): Two policy indicators: (a) a binary variable (0 = pre-legislation; 1 = post-legislation) capturing immediate effects, and (b) a cumulative monthly variable measuring long-term impacts.
+
+7\) Seasonality Controls: Monthly dummy variables were specified with January as the baseline, allowing the estimation of each month’s deviation in theft frequency relative to January.
+
+8\) Lag-Difference Indicator: Defined as the difference between the first and second lags of traffic copper cable theft (Lag 1 – Lag 2). Incorporated only into log-log and XGBoost models to improve the detection of short-term temporal trends of the theft incidents.
+
+After processing, all variables were merged into a balanced panel dataset. The sample was split into a training set (January 2010–July 2020) and a testing set (July 2020–June 2023) for model estimation and evaluation.
+
+```{r}
+# Install and load all required packages
+required_packages <- c(
+  "readxl", "dplyr", "ggplot2", "lmtest", "car", "sandwich", 
+  "devtools", "nlme", "knitr", "lubridate", "here", "tidyr",
+  "purrr", "FinTS", "forecast", "xgboost", "Matrix", "webshot2",
+  "stringr", "zoo", "readr", "ggpubr", "gridExtra", "cowplot",
+  "gtable", "gt", "grid", "tibble", "tseries", "showtext",
+  "scales", "shapviz"
+)
+
+for (pkg in required_packages) {
+  if (!require(pkg, character.only = TRUE)) {
+    message(paste("Installing:", pkg))
+    install.packages(pkg, dependencies = TRUE)
+  }
+  library(pkg, character.only = TRUE)
+}
+
+message("All required packages have been installed and loaded successfully.")
+```
+
+```{r}
+###Copper price###
+# Load raw copper price data
+df_raw_Price <- read_csv(here("01_Data", "02_Raw_original_data", "03_chart_20250721T044019.csv"))
+
+# Convert date format
+df_raw_Price <- df_raw_Price %>%
+  mutate(Date = mdy(Date))  # Original format: MM/DD/YYYY
+
+# Filter data to the target analysis period
+df_filtered_Price <- df_raw_Price %>%
+  filter(Date >= as.Date("2010-01-01") & Date <= as.Date("2023-06-01"))
+
+# Aggregate to monthly median copper prices
+monthly_copper <- df_filtered_Price %>%
+  mutate(month = floor_date(Date, "month")) %>%
+  group_by(month) %>%
+  summarise(Copper_price = median(Value, na.rm = TRUE)) %>%
+  ungroup()
+
+
+### Overall theft###
+# Load raw theft data
+df_theft <- read_excel(here("01_Data", "02_Raw_original_data", "05_Incident_by_NSW.xlsx"))
+
+# Define target subcategories
+target_subcategories <- c(
+  "Break and enter dwelling",
+  "Break and enter non-dwelling",
+  "Receiving or handling stolen goods",
+  "Motor vehicle theft",
+  "Steal from motor vehicle",
+  "Steal from retail store",
+  "Steal from dwelling",
+  "Steal from person",
+  "Stock theft",
+  "Fraud",
+  "Other theft"
+)
+
+# Filter to target subcategories
+df_filtered <- df_theft %>%
+  filter(Subcategory %in% target_subcategories)
+
+# Extract time-related columns and reshape to long format
+all_time_cols <- names(df_filtered)[6:ncol(df_filtered)]
+
+monthly_theft <- df_filtered %>%
+  select(all_of(all_time_cols)) %>%
+  summarise(across(everything(), ~ sum(.x, na.rm = TRUE))) %>%
+  pivot_longer(cols = everything(), names_to = "date", values_to = "Theft_rate") %>%
+  mutate(date = as.Date(as.numeric(date), origin = "1899-12-30"))
+
+# Filter to the target time range
+monthly_theft <- monthly_theft %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01"))
+
+
+###Unemployment rate (NSW)###
+df_unwork <- read_excel(
+  path = here("01_Data", "02_Raw_original_data", "02_6202004.xlsx"),
+  sheet = "Data1",
+  col_names = FALSE
+)
+
+monthly_unwork <- df_unwork %>%
+  dplyr::slice(11:nrow(.)) %>%
+  select(date_raw = 1, unwork_rate = 49) %>%
+  mutate(
+    date = as.Date(as.numeric(date_raw), origin = "1899-12-30"),
+    unwork_rate = as.numeric(unwork_rate)
+  ) %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01")) %>%
+  select(date, unwork_rate)
+
+
+###China's scrap copper import
+df_scrap <- read_excel(
+  path = here("01_Data", "02_Raw_original_data", "06_Non_Ferrous_Metal_Import_Copper_Waste.xlsx"),
+  col_names = FALSE
+)
+
+monthly_scrap <- df_scrap %>%
+  dplyr::slice(30:n()) %>%
+  select(date_raw = 1, value_raw = 2) %>%
+  mutate(
+    date = as.Date(as.numeric(date_raw), origin = "1899-12-30"),
+    copper_scrap_import = as.numeric(value_raw)
+  ) %>%
+  filter(!is.na(date) & !is.na(copper_scrap_import)) %>%
+  filter(date >= as.Date("2010-01-01") & date <= as.Date("2023-06-01")) %>%
+  select(date, copper_scrap_import)
+
+
+###Traffic copper cable theft###
+traffic_theft <- read_excel(
+  here("01_Data", "02_Raw_original_data", "04_copper_theft_NSW.xlsx")
+) %>%
+  rename(date = Date, time_unit = total_t) %>%
+  mutate(date = as.Date(date))
+
+
+
+###Merging All Preprocessed Datasets###
+# Rename variables for consistent merging
+monthly_theft <- monthly_theft %>% rename(total_theft = Theft_rate)
+monthly_copper <- monthly_copper %>% rename(date = month)
+
+# Ensure all date columns are in Date format
+monthly_copper$date <- as.Date(monthly_copper$date)
+monthly_scrap$date <- as.Date(monthly_scrap$date)
+monthly_unwork$date <- as.Date(monthly_unwork$date)
+monthly_theft$date <- as.Date(monthly_theft$date)
+
+# Merge all datasets
+combined_data <- traffic_theft %>%
+  left_join(monthly_copper, by = "date") %>%
+  left_join(monthly_scrap, by = "date") %>%
+  left_join(monthly_unwork, by = "date") %>%
+  left_join(monthly_theft, by = "date")
+
+# Inspect the merged data
+str(combined_data)
+summary(combined_data)
+
+
+
+
+###Final Variable Renaming and Environmental Cleanup###
+# Rename variables for clarity and standardization
+combined_data <- combined_data %>%
+  rename(
+    Scrap_Imports_CN = copper_scrap_import,
+    Unwork_NSW = unwork_rate,
+    Total_theft = total_theft
+  )
+
+# Keep only useful final datasets and remove all intermediate variables
+useful_vars <- c("monthly_copper", "monthly_scrap", "monthly_theft", "monthly_unwork", "combined_data")
+rm(list = setdiff(ls(), useful_vars))
+```
+
+```{r}
+###Variance Contribution of Traffic Copper Cable Theft to Total Theft###
+library(dplyr)
+
+df_var <- combined_data %>%
+  transmute(
+    date   = as.Date(date),
+    total  = as.numeric(Total_theft),   # Monthly total theft incidents in NSW
+    copper = as.numeric(cases)          # Monthly traffic copper cable theft incidents
+  ) %>%
+  filter(complete.cases(total, copper)) %>%
+  mutate(total_excl = pmax(total - copper, 0)) 
+
+# 1) Calculate variances
+var_total    <- var(df_var$total,      na.rm = TRUE)
+var_total_ex <- var(df_var$total_excl, na.rm = TRUE)
+
+# 2) Compute variance contribution rate (Δ_var)
+delta_var_pct <- (var_total - var_total_ex) / var_total * 100
+
+# 3) Output summary table
+contrib_tbl <- tibble::tibble(
+  n_obs          = nrow(df_var),
+  var_total      = var_total,
+  var_total_excl = var_total_ex,
+  delta_var_pct  = delta_var_pct
+)
+
+print(contrib_tbl)
+```
+
+# 4. Methodology
+
+## 4.1 Lag Structure Identification via Granger Causality
+
+Given that external shocks of metal theft often exhibit inherent temporal lags due to transmission through criminal networks ([Tomáš Brabenec & Montag, 2017]{.underline}), this study utilizes Granger causality tests within a Vector Autoregression (VAR) framework to identify lagged effects of external variables on traffic copper cable theft (Figure 2). The maximum lag is set between 1 and 6 periods with a significance level of p \< 0.05 to capture short- to medium-term lagged impacts. For each variable, the most statistically significant lag is retained; if none are significant, the closest lag is selected to ensure model simplicity and stability with a small sample (N=163).  
+
+Empirical analysis indicates that global copper prices, overall theft (NSW), and legislative variables are significant at Lag 1, while China's scrap copper imports show significance at Lag 5. Unemployment rates (NSW) remain insignificant across all lags, with Lag 4 approaching significance. These lagged variables serve as exogenous inputs in log-log, ARIMAX, and XGBoost models, capturing delayed external influences on traffic copper cable theft and ensuring the predictive models reflect real-world scenarios based solely on historical data.
+
+![](images/Granger%20Causality%20Test%20Results%20(p-values).png)
+
+Figure 2: Granger Causality Test Result (p-values)
+
+```{r}
+# Split into training and tesing datasets
+train_data <- combined_data %>% filter(date >= as.Date("2010-01-01") & date < as.Date("2021-07-01"))
+test_data <- combined_data %>% filter(date >= as.Date("2021-07-01") & date < as.Date("2023-06-01"))
+
+# Define candidate variables and lags
+variables_Granger <- c("intervention", "Total_theft", "Copper_price", "Unwork_NSW", "Scrap_Imports_CN", "t_since")
+lags <- 1:6
+
+# Function to compute p-value from Granger test
+get_granger_p <- function(var, lag) {
+  formula <- reformulate(var, response = "cases")
+  test <- grangertest(formula, order = lag, data = train_data)
+  return(test$`Pr(>F)`[2])
+}
+
+# Generate p-values for all combinations
+granger_results_all <- expand.grid(Variable = variables_Granger, Lag = lags) %>%
+  mutate(P_Value = map2_dbl(as.character(Variable), Lag, get_granger_p))
+
+# Reshape to wide format
+granger_wide <- granger_results_all %>%
+  mutate(Lag = paste0("Lag_", Lag, "_month")) %>%
+  pivot_wider(names_from = Lag, values_from = P_Value)
+
+# Label mapping for plot
+variable_labels <- c(
+  intervention = "Legislation (Binary)",
+  Total_theft = "Overall theft (NSW)",
+  Copper_price = "Global copper price",
+  Unwork_NSW = "Unemployment rate (NSW)",
+  Scrap_Imports_CN = "Scrap copper Imports (CN)",
+  t_since = "Legislation (cummulative)"
+)
+
+# Prepare visualization data
+granger_plot_data <- granger_results_all %>%
+  mutate(
+    Variable_Label = variable_labels[Variable],
+    Lag_Label = paste0("Lag ", Lag),
+    Significance = cut(
+      P_Value,
+      breaks = c(-Inf, 0.01, 0.05, 0.1, Inf),
+      labels = c("p < 0.01", "p < 0.05", "p < 0.1", "Not significant")
+    )
+  )
+
+
+library(dplyr)
+library(ggplot2)
+library(grid)
+library(scales)
+
+
+windowsFonts(
+  Times = windowsFont("Times New Roman")
+)
+
+
+piecewise_rescale <- function(p){
+  ifelse(p < 0.01, rescale(p,  to = c(0.00, 0.20), from = c(0.00, 0.01)),
+  ifelse(p < 0.04, rescale(p,  to = c(0.20, 0.40), from = c(0.01, 0.04)),
+  ifelse(p < 0.06, rescale(p,  to = c(0.40, 0.60), from = c(0.04, 0.06)),
+  ifelse(p < 0.10, rescale(p,  to = c(0.60, 0.80), from = c(0.06, 0.10)),
+                 rescale(p,  to = c(0.80, 1.00), from = c(0.10, 1.00))))))
+}
+
+
+granger_plot_data <- granger_plot_data %>%
+  mutate(
+    label_txt = sprintf("%.3f", P_Value),
+    label_col = ifelse(P_Value < 0.02 | P_Value > 0.70, "black", "black"),
+    P_scaled  = piecewise_rescale(P_Value)
+  )
+
+# 3) 颜色与节点
+cols <- c("#D83228", "#F08976", "#F0F1F4", "#C6CFE3", "#557EB9", "royalblue4")
+vals <- c(0.00, 0.20, 0.40, 0.60, 0.80, 1.00)
+
+# 4) 绘图
+ggplot(granger_plot_data, aes(x = Lag_Label, y = Variable_Label, fill = P_scaled)) +
+  geom_tile(color = NA) +
+  geom_text(aes(label = label_txt, colour = label_col),
+            size = 3.2, family = "Times") +
+  scale_colour_identity() +
+  scale_fill_gradientn(
+    colors = cols,
+    values = vals,
+    limits = c(0, 1),
+    oob = scales::squish,
+    name = "p-value",
+    breaks = c(0.10, 0.30, 0.50, 0.70, 0.90),
+    labels = c("p < 0.01", "0.01", "0.04", "0.06", "Not significant"),
+    guide = guide_colorbar(
+      barheight   = unit(6, "cm"),
+      barwidth    = unit(0.55, "cm"),
+      ticks.colour = "black",
+      frame.colour = "black"
+    )
+  ) +
+  labs(title = "Granger Causality Test Results (p-values)",
+       x = "Lag", y = "Variable") +
+  coord_fixed() +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  theme_minimal(base_size = 12) +
+  theme(
+    text = element_text(family = "Times"),
+    plot.title = element_text(size = 16, face = "bold", margin = margin(0,0,8,0)),
+    axis.title  = element_text(size = 12),
+    axis.text   = element_text(size = 12, colour = "grey20"),
+    panel.grid  = element_blank(),
+    legend.position = "right",
+    legend.title = element_text(size = 12),
+    legend.text  = element_text(size = 12),
+    plot.background = element_rect(fill = "white", colour = NA)
+  )
+```
+
+Figure. 2:  Granger Causality Test Results (p-values)
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+# -----------------------------
+# 1) Extract month information
+# -----------------------------
+combined_data <- combined_data %>%
+  mutate(Month = as.factor(month(date)))
+
+# -----------------------------
+# 2) Generate lagged variables
+# -----------------------------
+combined_data <- combined_data %>%
+  mutate(
+    cases_1.lag         = lag(cases, 1),
+    cases_2.lag         = lag(cases, 2),
+    intervention.lag    = lag(intervention, 1),
+    Total_theft.lag     = lag(Total_theft, 1),
+    Copper_price.lag    = lag(Copper_price, 1),
+    t_since.lag         = lag(t_since, 1),
+    Unwork_NSW.lag      = lag(Unwork_NSW, 4),
+    Scrap_Imports_CN.lag= lag(Scrap_Imports_CN, 5),
+    cases_lag1_diff     = cases_1.lag - cases_2.lag
+  )
+
+# -----------------------------
+# 3) Remove NA values generated by lags
+# -----------------------------
+combined_data <- combined_data %>%
+  filter(
+    !is.na(cases_1.lag),
+    !is.na(cases_2.lag),
+    !is.na(intervention.lag),
+    !is.na(Total_theft.lag),
+    !is.na(Copper_price.lag),
+    !is.na(t_since.lag),
+    !is.na(Unwork_NSW.lag),
+    !is.na(Scrap_Imports_CN.lag)
+  )
+
+# -----------------------------
+# 4) Generate log-transformed variables and their differences
+# -----------------------------
+combined_data <- combined_data %>%
+  mutate(
+    log_cases                 = log(cases + 1), 
+    log_cases_1.lag           = log(cases_1.lag + 1),
+    log_cases_2.lag           = log(cases_2.lag + 1),
+    log_Total_theft.lag       = log(Total_theft.lag + 1),
+    log_Copper_price.lag      = log(Copper_price.lag + 1),
+    log_t_since.lag           = log(t_since.lag + 1),
+    log_Unwork_NSW.lag        = log(Unwork_NSW.lag + 1),
+    log_Scrap_Imports_CN.lag  = log(Scrap_Imports_CN.lag + 1),
+    log_cases_diff            = log_cases_1.lag - log_cases_2.lag
+  )
+
+# -----------------------------
+# 5) Train / Test split
+# -----------------------------
+train_data <- combined_data %>% 
+  filter(date >= as.Date("2010-01-01") & date < as.Date("2021-07-01"))
+test_data <- combined_data %>% 
+  filter(date >= as.Date("2021-07-01") & date < as.Date("2023-06-01"))
+
+# -----------------------------
+# 6) Generate month dummy variables
+# -----------------------------
+train_data <- train_data %>%
+  mutate(
+    Feb = ifelse(Month == 2, 1, 0),
+    Mar = ifelse(Month == 3, 1, 0),
+    APr = ifelse(Month == 4, 1, 0),
+    May = ifelse(Month == 5, 1, 0),
+    Jun = ifelse(Month == 6, 1, 0),
+    Jul = ifelse(Month == 7, 1, 0),
+    Aug = ifelse(Month == 8, 1, 0),
+    Sep = ifelse(Month == 9, 1, 0),
+    Oct = ifelse(Month == 10, 1, 0),
+    Nov = ifelse(Month == 11, 1, 0),
+    Dec = ifelse(Month == 12, 1, 0),
+  )
+
+test_data <- test_data %>%
+  mutate(
+    Feb = ifelse(Month == 2, 1, 0),
+    Mar = ifelse(Month == 3, 1, 0),
+    APr = ifelse(Month == 4, 1, 0),
+    May = ifelse(Month == 5, 1, 0),
+    Jun = ifelse(Month == 6, 1, 0),
+    Jul = ifelse(Month == 7, 1, 0),
+    Aug = ifelse(Month == 8, 1, 0),
+    Sep = ifelse(Month == 9, 1, 0),
+    Oct = ifelse(Month == 10, 1, 0),
+    Nov = ifelse(Month == 11, 1, 0),
+    Dec = ifelse(Month == 12, 1, 0)
+  )
+```
+
+## 4.2 log-log Model
+
+This study employs a log-log regression model, a common approach in current time-series analyses of metal theft. By applying logarithmic transformations to linearize power relationships ([Benoit, 2011]{.underline}), it quantifies nonlinear associations between various driving factors and traffic copper cable theft via elasticity coefficients, facilitating cross-variable comparison of effect sizes. Its mathematical formulation is provided in (1):
+
+$$
+\log(Y_t) = \alpha + \beta \log(X_t) + \varepsilon_t
+\tag{1}
+$$
+
+Where $Y_t$ is the number of traffic copper cable theft incidents at time $t$; $X_t$ denotes the external influencing factors at time $t$; $\alpha$ is a constant term; $\beta$ is the elasticity coefficient, indicating that a 1% change in $X_t$ results in a $\beta$% change in $Y_t$; and $\varepsilon_t$ is the error term.
+
+Given that traffic copper cable theft data constitutes a typical time-series dataset characterized by sequentiality and inertia mechanisms, these properties may induce bias in parameter estimation and result in unstable confidence intervals ([Ludlow & Perez, 2018]{.underline}). Existing studies on metal theft typically employ Prais-Winsten and AR(1) regression methods to address autocorrelation; however, these methods are insufficient for higher-order or mixed autocorrelation structures. Therefore, this study employs Newey–West (HAC) robust standard errors ([Newey & West, 1987]{.underline}), applying the Bartlett kernel function to weight residual covariances to account for the impact of serial correlation on standard errors, thereby ensuring valid inference for parameter estimates and confidence intervals. Furthermore, robustness checks across different bandwidths confirm the reliability of the log-log model results.
+
+The log-log model selects variables by minimizing AIC and BIC, using stepwise elimination to discard those with P \> 0.05. In each step, the variable with the highest P-value is removed, and the model is refitted after each elimination. This process continues until all remaining variables are statistically significant, ensuring the model retains only relevant, non-redundant predictors.
+
+```{r}
+# Log-log linear regression model (remove Aug)
+log_log_model_11 <- lm(log_cases ~ log_Total_theft.lag + log_Copper_price.lag + intervention.lag + log_t_since.lag + May + Sep, data = train_data)
+```
+
+## 4.3 ARIMAX Model
+
+The ARIMAX model is widely used in crime prediction for its ability to capture the internal dynamics of time series and external influences ([Williams & Meghanathan, 2025]{.underline}), which includes autoregressive (AR, p), differencing (I, d), and moving average (MA, q) components, with exogenous variables in the mean equation to account for seasonality, autocorrelation, and external shocks (Box, Jenkins, & Reinsel, 2008). Equations are shown in (2):
+
+$$
+Y_t = \frac{\theta_q(B)\alpha_t}{\varphi_p(B)(1 - B^d)} + X_t\beta + \varepsilon_t
+\tag{2}
+$$
+
+Where $Y_t$ represents the predicted number of traffic copper cable theft incidents, $\varphi_p(B)$ and $\theta_q(B)$ are the autoregressive and moving average polynomials, $(1 - B^d)$ is the differencing operator, $\alpha_t$ is the stochastic disturbance term of the time series, $X_t$ is the exogenous variables, $\beta$ is the respective coefficients, and $\varepsilon_t$ is the white noise error term.
+
+The ARIMAX model parameters (p, d, q) were automatically selected on the training set using R's auto.arima function, following the Hyndman-Khandakar algorithm with KPSS and Canova-Hansen unit root tests to ensure stationarity. The optimal (p, d, q) combination was then identified via AIC to balance model fit and complexity ([Hyndman & Khandakar, 2008]{.underline}). To improve parameter stability and manage computational demands, constraints were set with max.p = 5, max.q = 5, and max.d = 2.
+
+In variable selection, because auto.arima consistently identifies an ARIMAX(1,0,1) structure across various variable combinations, AIC and BIC are used as metrics to compare different variable sets. The stepwise elimination method is maintained to minimize the impact of redundant information on model structure and prediction.
+
+To ensure comparability of variable effects in ARIMAX(1,0,1), continuous exogenous and dependent variables were standardized using z-score normalization within the training sample. Binary variables (legislation and month) remained unchanged. Standardization allows coefficients of continuous variables to be interpreted as the impact of a one–standard deviation increase in the exogenous variable on the dependent variable. This procedure is only applied for effect-size comparison (Table X); all modelling, diagnostics, and predictions are conducted on the original scale.
+
+```{r}
+# Construct external varibale matrix (remove Nov)
+Xreg_matrix_12 <- model.matrix(~ Total_theft.lag + Copper_price.lag + intervention.lag + May + Jun + Sep, data = train_data)
+
+# Train the SARIMAX model
+arimax_model_12 <- auto.arima(train_data$cases, xreg = Xreg_matrix_12, max.p = 5, max.d = 2, max.q = 5, 
+                             seasonal = TRUE, stepwise = FALSE, approximation = FALSE)
+```
+
+## 4.4 XGBoost Model
+
+In recent years, machine learning techniques have been widely used in crime prediction studies ([Safat, Asghar, & Gillani, 2021]{.underline}). Unlike LSTM and KNN models, which are more sensitive to sample size and feature dimensions ([Thirupathi Kandadi & G. Shankarlingam, 2025; Zhang, 2021]{.underline}), XGBoost combines the advantages of gradient boosting and ensemble tree methods. It iteratively builds regression trees to minimize the loss function and adds regularisation terms into the objective to control model complexity, making it especially suitable for this study's context, where the sample size is limited and multiple feature variables are present. Its mathematical details are shown in Equation (3):
+
+$$
+L^{(t)} = \sum_{i=1}^n l\big(y_i, \hat{y}_i^{(t-1)} + f_t(x_i)\big) + \Omega(f_t)
+\tag{3}
+$$
+
+Where $L^{(t)}$ is the overall objective function to be minimized; $n$ is the number of samples; $y_i$ and $\hat{y}_i^{(t-1)}$ are the observed and predicted values for the $i$-th sample from the previous iteration; $f_t(x_i)$ represents the regression tree added at iteration $t$ to refine predictions. The loss function $l(\cdot)$ measures the prediction error, while the regularization term $\Omega(f_t)$ penalizes model complexity to prevent overfitting.
+
+Given that traffic copper cable theft incidents are represented as non-negative count data, XGBoost employs a Poisson objective to capture event frequencies. Model evaluation uses expanding-origin cross-validation with rolling windows (≥72 months training, 12 months validation, and a 2-month gap to avoid leakage), advancing every 3 months until the training dataset is exhausted. This design ensures reliable generalization while preserving temporal dependencies.
+
+1\) Key hyperparameters are tuned via grid search:
+
+2\) Max_depth ∈ {3, 5, 7} : controls model complexity;
+
+3\) Learning_rate ∈ {0.01, 0.05, 0.1} : balances training speed and generalization;
+
+4\) Subsample ∈ {0.6, 0.8} : improves robustness;
+
+5\) Colsample_by_tree ∈ {0.6, 0.8} : reduces overfitting by introducing feature randomness.
+
+The final model is retrained on the training dataset using the optimal parameters, while residual diagnostics and accuracy checks are performed on the testing dataset to evaluate its predictive performance.
+
+```{r}
+X_train_1 <- model.matrix(
+  ~ cases_lag1_diff + Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag +
+    Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec,
+  data = train_data
+)
+
+X_test_1 <- model.matrix(
+  ~ cases_lag1_diff + Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag +
+    Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec,
+  data = test_data
+)
+
+# 4) DMatrix
+dtrain <- xgb.DMatrix(data = X_train_1, label = train_data$cases)
+dtest  <- xgb.DMatrix(data = X_test_1)
+
+# 5) Hyperparameter grid
+grid <- expand.grid(
+  max_depth = c(3, 5, 7),
+  eta = c(0.01, 0.05, 0.1),
+  subsample = c(0.6, 0.8),
+  colsample_bytree = c(0.6, 0.8)
+)
+
+# 6) Expanding window CV (Scheme B): train only on past → predict future, set minimum training window
+make_expanding_origin_folds <- function(n, V = 12, gap = 2, min_train = 60, step = 1) {
+  # n: number of training samples (rows in train_data)
+  # V: validation window length (months)
+  # gap: gap between training and validation (months)
+  # min_train: minimum training window length (months)
+  # step: step size for rolling the starting point (months)
+
+  folds <- list()
+  # Training window endpoint (origin) starts from min_train, ensuring validation does not overflow
+  # Validation start = origin + gap + 1
+  # Validation end   = validation start + V - 1
+  origin_max <- n - gap - V
+  if (origin_max < min_train) {
+    warning("Sample size too small to generate folds with current min_train/gap/V; please reduce min_train or V or gap.")
+    return(folds)
+  }
+
+  k <- 1
+  for (origin in seq(min_train, origin_max, by = step)) {
+    train_idx <- 1:origin
+    val_start <- origin + gap + 1
+    val_end   <- origin + gap + V
+    valid_idx <- val_start:val_end
+    folds[[k]] <- list(train = train_idx, valid = valid_idx)
+    k <- k + 1
+  }
+  folds
+}
+
+# Set CV parameters (adjustable based on your data size)
+V         <- 12   # Validation window length: 12 months
+gap       <- 2    # Gap between training and validation: 2 months
+min_train <- 72   # Minimum training window: recommend 72 or 60; reduce to 60 for fewer samples
+step      <- 3    # Roll forward by 3 months each step (can set to 2 or 3 for speed)
+
+n <- nrow(train_data)
+folds <- make_expanding_origin_folds(n, V = V, gap = gap, min_train = min_train, step = step)
+cat("Expanding-origin CV folds:", length(folds), "\n")
+if (length(folds) == 0) stop("No valid folds generated for expanding-origin CV, please adjust V/gap/min_train/step.")
+
+# 7) Grid search (unchanged, but using the above folds)
+best_score   <- Inf
+best_param   <- list()
+best_nrounds <- 0
+
+for (i in 1:nrow(grid)) {
+  param <- list(
+    objective        = "count:poisson",
+    eval_metric      = "poisson-nloglik",
+    max_depth        = grid$max_depth[i],
+    eta              = grid$eta[i],
+    subsample        = grid$subsample[i],
+    colsample_bytree = grid$colsample_bytree[i]
+  )
+
+  fold_scores <- numeric(length(folds))
+  fold_iters  <- numeric(length(folds))
+
+  for (k in seq_along(folds)) {
+    tr <- folds[[k]]$train
+    va <- folds[[k]]$valid
+
+    dtrain_k <- xgb.DMatrix(X_train_1[tr, ], label = train_data$cases[tr])
+    dvalid_k <- xgb.DMatrix(X_train_1[va, ], label = train_data$cases[va])
+
+    set.seed(123 + k)
+    mdl <- xgb.train(
+      params                = param,
+      data                  = dtrain_k,
+      nrounds               = 150,
+      early_stopping_rounds = 10,
+      watchlist             = list(train = dtrain_k, valid = dvalid_k),
+      verbose               = 0
+    )
+
+    fold_scores[k] <- mdl$best_score
+    fold_iters[k]  <- mdl$best_iteration
+  }
+
+  cv_mean <- mean(fold_scores)
+
+  if (cv_mean < best_score) {
+    best_score   <- cv_mean
+    best_param   <- param
+    best_nrounds <- as.integer(median(fold_iters))
+  }
+}
+
+cat("Best CV mean (poisson-nloglik):", round(best_score, 6), "\n")
+print("Best parameters:"); print(best_param)
+cat("Best nrounds (median of folds):", best_nrounds, "\n")
+
+# 8) Retrain with the best parameters on the entire training set
+xgb_final <- xgb.train(
+  params  = best_param,
+  data    = dtrain,
+  nrounds = best_nrounds,
+  verbose = 1
+)
+
+# 9) Predict on the test set
+xgb_pred <- predict(xgb_final, dtest)
+
+# 10) Calculate test set error metrics
+final_predictions_xgb <- xgb_pred
+final_residuals_xgb   <- test_data$cases - final_predictions_xgb
+
+# Baseline model: naive forecast (previous value)
+naive_forecast <- lag(test_data$cases, 1)
+
+# Remove NA rows (first row has no lagged value)
+valid_idx <- !is.na(naive_forecast)
+```
+
+## 4.5 Framework for Methodology and Model Evaluation
+
+To systematically compare the applicability of different models in analyzing traffic copper cable theft time series, this study evaluates them from two perspectives: hypothesis testing and predictive accuracy.
+
+For hypothesis testing, the log–log, ARIMAX, and XGBoost models were examined for residual normality, heteroskedasticity, and autocorrelation to ensure the validity of coefficient estimation and statistical inference. Additionally, given the structural differences among models, the log–log and ARIMAX models were further tested for stationarity to verify temporal dependence structures and for multicollinearity to ensure the validity of regression estimates, which are not directly applicable to the XGBoost framework.
+
+In terms of predictive performance, RMSE and MAPE were selected as core metrics, with the former penalising large errors and thus being sensitive to volatility, and the latter expressing overall accuracy in percentage terms. MAE was further employed to measure the average magnitude of errors, while ME and MPE were used to detect potential systematic bias. To complement these metrics, predictive results were visualised to enable clearer model comparison.
+
+The overall methodological framework of this study is summarised in Figure 3.
+
+![](images/Overall%20Methodological%20Workflow%20for%20Model%20Development%20and%20Evaluation.png){fig-align="center"}
+
+Figure. 3: Overall Methodological Workflow for Model Construction and Evaluation
+
+# 5.  Results
+
+## 5.1 Model Assumption Comparison
+
+As the initial step of model comparison, log–log, ARIMAX, and XGBoost were subjected to assumption tests. As shown in Table 1, all three models exhibit white noise residuals, homoscedasticity, stationarity, and no multicollinearity, thereby avoiding risks of biased coefficient estimation and distorted significance testing.
+
+In terms of residual autocorrelation, both the ARIMAX(1,0,1) model (Box–Ljung test *p* = 0.599) and the XGBoost model (*p* = 0.480) effectively handle the autocorrelation problem of traffic copper cable theft as a typical time series variable. In contrast, the log–log model shows significant autocorrelation based on the Box–Ljung test (*p* = $6.65 \times 10^{-13}$ and the Durbin–Watson test *p* = $5.15 \times 10^{-9}$).
+
+Further, ACF/PACF visualisation results in Figure 4 show that ACF exhibits significant positive correlations at lags 1–6 with a geometric decay, followed by a persistent negative tail at lags 15–20. PACF is significant only at lag 1 and then rapidly declines, with a marginal negative spike observed at lag 18. This pattern indicates that the residuals are primarily driven by low-order AR components, accompanied by medium-term inverse dependence. Accordingly, it is inappropriate to impose a pure AR(1) error structure.
+
+Based on the above evidence, the log–log model was estimated using Newey–West (HAC) standard errors. Robustness checks across fixed bandwidths (L=4, 6, 12, 18, 24) showed consistent signs and significance of key coefficients (Appendix A.3), indicating serial correlation mainly affects the scale of the standard errors rather than the substantive conclusions. Accordingly, results with L=18 were used to account for the positive correlations at lags 1–6 and negative at 15–20 and compared with ARIMAX and XGBoost effects to ensure robustness and comparability.
+
+![](images/05_Log_Log_ACF_Residuals.png){fig-align="center"}
+
+Figure. 4: ACF and PACF of Residuals from the log–log Model
+
+![](images/Summary%20of%20basic%20assumption%20tests%20applied%20to%20each%20model.png){fig-align="center"}
+
+Table 1  Summary of basic assumption tests applied to each model
+
+```{r}
+###Model Assumption tests for log-log###
+# Extract residuals
+residuals_log_log_model_11 <- residuals(log_log_model_11)
+
+# Plot residual histogram
+hist(residuals_log_log_model_11, breaks = 30, main = "Residuals Histogram", xlab = "Residuals", col = "blue")
+
+# Generate Q–Q plot
+qqnorm(residuals_log_log_model_11)
+qqline(residuals_log_log_model_11, col = "red")
+
+# Perform Shapiro–Wilk normality test 
+shapiro.test(residuals_log_log_model_11)
+
+# Plot residuals vs. fitted values
+plot(fitted(log_log_model_11), residuals_log_log_model_11, main = "Residuals vs. Fitted",
+     xlab = "Fitted values", ylab = "Residuals", pch = 20, col = "blue")
+abline(h = 0, col = "red", lwd = 2)
+
+# Breusch–Pagan test for heteroscedasticity
+bptest(log_log_model_11)
+
+# Autocorrelation tests
+# Durbin–Watson test
+dwtest(log_log_model_11)
+
+# Ljung–Box test
+Box.test(residuals_log_log_model_11, lag = 30, type = "Ljung-Box")
+
+# Multicollinearity diagnostics
+# Calculate VIF
+vif(log_log_model_11)
+
+library(tseries)
+# ADF test
+adf.test(residuals_log_log_model_11)
+
+# KPSS test
+kpss.test(residuals_log_log_model_11, null = "Level") 
+```
+
+```{r}
+###ACF and PACF test for log-log model###
+library(forecast)
+library(ggplot2)
+library(showtext)
+
+# 1. Load Times New Roman system font (Windows default path)
+font_add("Times New Roman", "C:/Windows/Fonts/times.ttf")
+showtext_auto()
+
+# 2. Extract residuals
+residuals_loglog <- resid(log_log_model_11)
+
+# 3. ACF plot
+acf_loglog_plot <- ggAcf(residuals_loglog, lag.max = 30) +
+  labs(
+    title = "ACF of Log-Log Model Residuals",
+    x = "Lag (Months)",
+    y = "Autocorrelation"
+  ) +
+  theme_minimal(base_size = 12, base_family = "Times New Roman") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text = element_text(color = "black"),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+
+# 4. PACF plot
+pacf_loglog_plot <- ggPacf(residuals_loglog, lag.max = 30) +
+  labs(
+    title = "PACF of Log-Log Model Residuals",
+    x = "Lag (Months)",
+    y = "Partial Autocorrelation"
+  ) +
+  theme_minimal(base_size = 12, base_family = "Times New Roman") +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    axis.text = element_text(color = "black"),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "white", color = NA)
+  )
+
+# 5. Display plots
+print(acf_loglog_plot)
+print(pacf_loglog_plot)
+```
+
+```{r}
+###Model Assumption Test for ARIMAX model###
+# Calculating the residual of the final ARIMAX model
+residuals_arimax <- residuals(arimax_model_12)
+
+# Conduct Ljung–Box test to examine residual independence  
+Box.test(residuals_arimax, lag = 30, type = "Ljung-Box")
+
+# Perform Shapiro–Wilk test to assess normality of residuals  
+shapiro_test_result <- shapiro.test(residuals_arimax)
+print(shapiro_test_result)
+
+# Use ARCH LM test to detect heteroscedasticity in residuals  
+ArchTest(residuals_arimax, lags = 10)
+
+library(tseries)
+# Extract residuals from the SARIMAX model  
+residuals_arimax <- residuals(arimax_model_12)
+
+# Perform Augmented Dickey–Fuller (ADF) test to evaluate residual stationarity  
+adf.test(residuals_arimax)
+
+# Perform KPSS test to evaluate residual stationarity
+# null hypothesis: residuals are stationary
+kpss_test_result <- kpss.test(residuals_arimax, null = "Level")  
+
+print(kpss_test_result)
+```
+
+```{r}
+###Model Assumption Test for XGBoost model###
+# -----------------------------------------------------
+# 3. Residual diagnostics
+# -----------------------------------------------------
+# 3.1 Ljung–Box test (autocorrelation)
+box_ljung_test_xgb <- Box.test(final_residuals_xgb, lag = 20, type = "Ljung-Box")
+print(box_ljung_test_xgb)
+
+# 3.2 Shapiro–Wilk test (normality)
+shapiro_test_xgb <- shapiro.test(final_residuals_xgb)
+print(shapiro_test_xgb)
+
+# 3.3 Breusch–Pagan test (heteroskedasticity)
+if (!require(lmtest)) install.packages("lmtest")
+library(lmtest)
+bp_model <- lm(final_residuals_xgb^2 ~ final_predictions_xgb)
+bptest_result <- bptest(bp_model)
+print(bptest_result)
+
+# 3.4 Q-Q plot
+qqnorm(final_residuals_xgb, main = "Normal Q-Q Plot of XGBoost Residuals")
+qqline(final_residuals_xgb, col = "red", lwd = 2)
+
+# -----------------------------------------------------
+# 4. ACF / PACF plots
+# -----------------------------------------------------
+if (!require(forecast)) install.packages("forecast")
+library(forecast)
+
+acf_plot <- ggAcf(final_residuals_xgb, lag.max = 13) +
+  labs(title = "ACF of XGBoost Residuals",
+       x = "Lag (Months)", y = "Autocorrelation") +
+  theme_minimal(base_size = 12)
+
+pacf_plot <- ggPacf(final_residuals_xgb, lag.max = 13) +
+  labs(title = "PACF of XGBoost Residuals",
+       x = "Lag (Months)", y = "Partial Autocorrelation") +
+  theme_minimal(base_size = 12)
+
+print(acf_plot)
+print(pacf_plot)
+```
+
+## 5.2 Model Predictive Performance Comparison
+
+Table 2 shows the prediction performance of the three models on the test set. All models effectively capture the general trend of traffic copper cable theft, and significantly better than the naïve monthly lag baseline (MASE \< 1), with log–log = 0.565, ARIMAX = 0.657, and XGBoost = 0.787. Among them, the log–log model (RMSE = 10.634) shows the lowest prediction error, outperforming ARIMAX (RMSE = 12.108) and XGBoost (RMSE = 13.136).
+
+From a structural perspective, the ARIMAX(1,0,1) model shows limited advantage when dealing with time series dominated by low-order autoregressive terms, as its fixed autoregressive and moving-average orders constrain the adjustment to short-term fluctuations. In contrast, the log–log model emphasises core external drivers, reducing reliance on rigid dynamic components and better highlighting the role of exogenous variables. The XGBoost model, relying on piecewise tree-based functions, delivers overall nice predictive accuracy but exhibits weaker capacity to capture high-frequency variations, rendering it less effective than the log–log model in detecting frequent fluctuations.
+
+As shown in Figure 5, traffic copper cable theft displays stage-specific lag effects: during 2021Q3–2022Q3, predictions lagged actual values by about one month, while in 2022Q4–2023Q2 they were contemporaneous, indicating time-varying dynamics. Together with Section 5.3 findings that theft is strongly driven by external shocks, this implies that such factors can transmit instantly in some periods but require longer market and behavioural chains in others. Thus, crime dynamics are dominated by structural, time-varying external forces rather than simple seasonality.
+
+![](images/Forecast%20Error%20Metrics%20for%20Different%20Models.png){fig-align="center"}
+
+Table 2 Forecast Error Metrics for Different Models
+
+![](images/Comparison%20of%20Predicted%20vs.%20Actual%20Cases.png)
+
+Fig. 5. Comparison of Predicted vs. Actual Cases
+
+```{r}
+###log-log model predictive performance###
+library(ggplot2)
+library(lubridate)
+
+
+# Prediction and back-transformation 
+test_data$predicted_log_cases <- predict(log_log_model_11, newdata = test_data)
+test_data$predicted_cases <- exp(test_data$predicted_log_cases) - 1
+test_data$actual_cases <- test_data$cases  
+
+# Visualization: Predicted vs. Actual Cases (Quarterly) 
+ggplot(test_data, aes(x = date)) +
+  geom_step(aes(y = actual_cases, color = "Actual Cases"), size = 1.2) +
+  geom_step(aes(y = predicted_cases, color = "Predicted Cases"), size = 1.2) +
+  scale_color_manual(
+    values = c("Actual Cases" = "black",
+               "Predicted Cases" = "#00BA38")
+  ) +
+  scale_x_date(
+    date_breaks = "3 months",
+    labels = function(x) {
+      paste0(format(x, "%Y"), "-Q", lubridate::quarter(x))
+    }
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 20)
+  ) +
+  labs(
+    title = "Comparison of Predicted vs. Actual Cases by Quarter",
+    x = "Quarter",
+    y = "Number of Theft Cases",
+    color = "Legend"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 10)
+  )
+
+# Prediction error evaluation 
+
+# Predict values using the final log-log model
+predicted_values <- predict(log_log_model_11, newdata = test_data)
+
+# Back-transform predicted and actual values
+predicted_cases <- exp(predicted_values) - 1
+test_data$actual_cases <- exp(test_data$log_cases) - 1
+
+# Create result dataframe
+prediction_results <- data.frame(
+  date = test_data$date,
+  actual_cases = test_data$actual_cases,
+  predicted_cases = predicted_cases
+)
+
+# Compute residuals
+errors <- prediction_results$predicted_cases - prediction_results$actual_cases
+
+# Evaluation metrics
+ME <- mean(errors)
+RMSE <- sqrt(mean(errors^2))
+MAE <- mean(abs(errors))
+MPE <- mean((errors / prediction_results$actual_cases) * 100)
+MAPE <- mean(abs(errors / prediction_results$actual_cases) * 100)
+
+# Naive benchmark for MASE
+naive_forecast <- c(NA, head(prediction_results$actual_cases, -1))
+naive_errors <- naive_forecast - prediction_results$actual_cases
+MASE <- mean(abs(errors)) / mean(abs(naive_errors), na.rm = TRUE)
+
+
+# Output all metrics
+cat("Mean Error (ME):", ME, "\n")
+cat("Root Mean Squared Error (RMSE):", RMSE, "\n")
+cat("Mean Absolute Error (MAE):", MAE, "\n")
+cat("Mean Percentage Error (MPE):", MPE, "%\n")
+cat("Mean Absolute Percentage Error (MAPE):", MAPE, "%\n")
+cat("Mean Absolute Scaled Error (MASE):", MASE, "\n")
+```
+
+```{r}
+###ARIMAX model predictive performance###
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+
+
+forecast_xreg_12 <- model.matrix(~ Total_theft.lag + Copper_price.lag + intervention.lag + May + Jun + Sep, data = test_data)
+forecast_result_12 <- forecast(arimax_model_12, xreg = forecast_xreg_12)
+
+# Add columns for predicted and actual values
+test_data$predicted_cases <- forecast_result_12$mean
+test_data$actual_cases <- test_data$cases
+
+# Plotting (Comparison between predicted and actual values)
+ggplot(test_data, aes(x = date)) +
+  geom_step(aes(y = actual_cases, color = "Actual Cases"), size = 1.2) +
+  geom_step(aes(y = predicted_cases, color = "Predicted Cases"), size = 1.2) +
+  scale_color_manual(
+    values = c("Actual Cases" = "black",
+               "Predicted Cases" = "#1f77b4")
+  ) +
+  scale_x_date(
+    date_breaks = "3 months",
+    labels = function(x) paste0(format(x, "%Y"), "-Q", lubridate::quarter(x))
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 20)
+  ) +
+  labs(
+    title = "Comparison of Predicted vs. Actual Cases by Quarter",
+    x = "Quarter",
+    y = "Number of Theft Cases",
+    color = "Legend"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 10)
+  )
+
+
+library(dplyr)
+
+# Compute error terms and associated metrics
+comparison_data <- test_data %>%
+  mutate(
+    Error = actual_cases - predicted_cases,
+    Abs_Error = abs(Error),
+    Squared_Error = Error^2,
+    Pct_Error = ifelse(actual_cases == 0, NA, (Error / actual_cases) * 100),
+    Abs_Pct_Error = abs(Pct_Error)
+  )
+
+# Basic error metrics
+ME    <- mean(comparison_data$Error, na.rm = TRUE)
+RMSE  <- sqrt(mean(comparison_data$Squared_Error, na.rm = TRUE))
+MAE   <- mean(comparison_data$Abs_Error, na.rm = TRUE)
+MPE   <- mean(comparison_data$Pct_Error, na.rm = TRUE)
+MAPE  <- mean(comparison_data$Abs_Pct_Error, na.rm = TRUE)
+
+# Construct a naive benchmark (for MASE calculation)
+comparison_data <- comparison_data %>%
+  mutate(
+    Naive = lag(actual_cases, 1),
+    Naive_Error = actual_cases - Naive,
+    Abs_Naive_Error = abs(Naive_Error)
+  )
+Naive_MAE <- mean(comparison_data$Abs_Naive_Error, na.rm = TRUE)
+MASE <- MAE / Naive_MAE
+
+
+# Output all error metrics
+cat("ARIMAX Forecast Error Metrics (Original Scale, Test Set):\n")
+cat("---------------------------------------------------------\n")
+cat("Mean Error (ME):",    round(ME, 4), "\n")
+cat("Root Mean Squared Error (RMSE):", round(RMSE, 4), "\n")
+cat("Mean Absolute Error (MAE):",      round(MAE, 4), "\n")
+cat("Mean Percentage Error (MPE):",    round(MPE, 4), "%\n")
+cat("Mean Absolute Percentage Error (MAPE):", round(MAPE, 4), "%\n")
+cat("Mean Absolute Scaled Error (MASE):", round(MASE, 4), "\n")
+```
+
+```{r}
+###XGBoost model predictive performance###
+stopifnot(length(final_predictions_xgb) == nrow(test_data))
+test_data$predicted_cases <- as.numeric(final_predictions_xgb)
+test_data$actual_cases    <- test_data$cases
+
+library(ggplot2)
+library(lubridate)
+
+p_XGBoost <- ggplot(test_data, aes(x = date)) +
+  geom_step(aes(y = actual_cases,    color = "Actual Cases"),    size = 1.2) +
+  geom_step(aes(y = predicted_cases, color = "Predicted Cases"), size = 1.2) +
+  scale_color_manual(
+    values = c("Actual Cases" = "black",
+               "Predicted Cases" = "red")  
+  ) +
+  scale_x_date(
+    date_breaks = "3 months",
+    labels = function(x) paste0(format(x, "%Y"), "-Q", lubridate::quarter(x))
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 20)
+  ) +
+  labs(
+    title = "Comparison of Predicted vs. Actual Cases by Quarter",
+    x = "Quarter",
+    y = "Number of Theft Cases",
+    color = "Legend"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title  = element_text(size = 14, face = "bold"),
+    axis.title  = element_text(size = 12),
+    axis.text   = element_text(size = 10),
+    legend.title= element_text(size = 10),
+    legend.text = element_text(size = 10)
+  )
+
+print(p_XGBoost)
+
+# === Evaluation metrics ===
+actual_all <- test_data$cases
+pred_all   <- final_predictions_xgb
+
+# Keep samples comparable with naive benchmark (remove first-row NA)
+actual <- actual_all[valid_idx]
+pred   <- pred_all[valid_idx]
+
+# Errors
+err <- actual - pred
+
+# Basic metrics
+ME   <- mean(err, na.rm = TRUE)
+MAE  <- mean(abs(err), na.rm = TRUE)
+RMSE <- sqrt(mean(err^2, na.rm = TRUE))
+
+# Percentage errors (exclude cases where actual = 0)
+nz_idx <- actual != 0 & !is.na(actual) & !is.na(pred)
+MPE  <- mean( (actual[nz_idx] - pred[nz_idx]) / actual[nz_idx] * 100, na.rm = TRUE)
+MAPE <- mean( abs(actual[nz_idx] - pred[nz_idx]) / abs(actual[nz_idx]) * 100, na.rm = TRUE)
+
+# MASE (scaled by mean absolute one-step difference in training set)
+scale_factor <- mean(abs(diff(train_data$cases)), na.rm = TRUE)
+MASE <- MAE / scale_factor
+
+# Output
+metrics <- data.frame(
+  ME   = ME,
+  MAE  = MAE,
+  RMSE = RMSE,
+  MPE  = MPE,
+  MAPE = MAPE,
+  MASE = MASE
+)
+print(round(metrics, 4))
+```
+
+```{r}
+# =========================
+# Actual = interval bars (geom_rect) + three models = step lines
+# Complete code to perfectly align bars with step lines
+# =========================
+suppressPackageStartupMessages({
+  library(ggplot2); library(lubridate); library(dplyr); library(tidyr); library(forecast)
+})
+
+
+test_data$pred_loglog  <- exp(predict(log_log_model_11, newdata = test_data)) - 1
+test_data$pred_arimax  <- as.numeric(forecast_result_12$mean)
+test_data$pred_xgboost <- as.numeric(final_predictions_xgb)
+library(tidyr)
+pred_df <- test_data %>%
+  select(date, pred_loglog, pred_arimax, pred_xgboost) %>%
+  pivot_longer(
+    cols = starts_with("pred_"),
+    names_to = "series",
+    values_to = "value"
+  ) %>%
+  mutate(
+    series = case_when(
+      series == "pred_loglog"  ~ "Log-Log",
+      series == "pred_arimax"  ~ "ARIMAX",
+      series == "pred_xgboost" ~ "XGBoost",
+      TRUE ~ series
+    )
+  )
+
+
+test_data <- test_data %>%
+  mutate(pred_loglog = exp(predict(log_log_model_11, newdata = test_data)) - 1)
+
+
+forecast_xreg_12 <- model.matrix(
+  ~ Total_theft.lag + Copper_price.lag + intervention.lag + May + Jun + Sep,
+  data = test_data
+)
+forecast_result_12 <- forecast(arimax_model_12, xreg = forecast_xreg_12)
+test_data$pred_arimax <- as.numeric(forecast_result_12$mean)
+
+
+stopifnot(length(final_predictions_xgb) == nrow(test_data))
+test_data$pred_xgb <- as.numeric(final_predictions_xgb)
+
+
+rect_df <- test_data %>%
+  arrange(date) %>%
+  mutate(
+    next_date = lead(date),
+    last_date = max(date, na.rm = TRUE),
+    next_date = if_else(is.na(next_date), last_date, next_date)  # do not extend beyond the last bar
+  )
+
+min_date <- min(test_data$date, na.rm = TRUE)
+max_date <- max(test_data$date, na.rm = TRUE)
+
+# --- Plotting ---
+p <- ggplot() +
+  geom_rect(
+    data = rect_df,
+    aes(xmin = date, xmax = next_date, ymin = 0, ymax = cases, fill = "Actual"),
+    alpha = 0.35, color = NA
+  ) +
+  geom_step(
+    data = pred_df,
+    aes(x = date, y = value, color = series),
+    linewidth = 1.2
+  ) +
+  scale_x_date(
+    limits = c(min_date, max_date),           # strictly clip to data range
+    expand  = c(0, 0),                        # no padding
+    date_breaks = "3 months",
+    labels = function(x) paste0(format(x, "%Y"), "-Q", lubridate::quarter(x))
+  ) +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 20)) +
+  scale_fill_manual(name = "Series", values = c("Actual" = "grey70")) +
+  scale_color_manual(name = "Series",
+                     values = c("Log-Log"="#00BA38","ARIMAX"="#1f77b4","XGBoost"="red")) +
+  labs(title="Comparison of Predicted vs. Actual Cases by Quarter",
+       x="Quarter", y="Number of Theft Cases") +
+  theme_minimal() +
+  theme(
+        plot.title = element_text(size=14, face="bold"),
+        axis.title = element_text(size=12),
+        axis.text  = element_text(size=10),
+        legend.title = element_text(size=10),
+        legend.text  = element_text(size=10))
+print(p)
+```
+
+## 5.3 Comparison of Model Estimation Results
+
+Table 3 further reports rankings only for variables with significant contributions across models, which reveals that overall theft incidents and global copper prices are the primary external factors influencing traffic copper cable theft, as identified consistently across all three models. Conversely, unemployment and China’s scrap copper imports exhibit limited or inconsistent effects. Seasonal influences are only statistically significant in May and September, and the overall pattern lacks robustness. Additional estimation results and robustness checks for the log–log, ARIMAX, and XGBoost models are provided in Appendices A, B, and C, respectively.
+
+In the log–log model, overall thefts (β = 2.222) and copper price (β = 0.884) both exhibit strong long-term positive effects, while the legislation (dummy) shows a significant suppressive effect (β = –0.996). Seasonal effects are only significant in May (β = 0.250) and September (β = 0.263), suggesting weak overall seasonality. XGBoost, through SHAP contributions, further confirms the contribution of copper price (27.0%), total theft (21.7%), and legislation (18.3%) as the top three predictors. Seasonal features such as May (1.34%) and September (0.86%) contribute only marginally.
+
+In contrast, ARIMAX(1,0,1) shows the highest structural sensitivity to abrupt structural changes. The z-score standardised legislation dummy (β\* = –0.800) is the most influential variable, confirming a baseline shift in theft incidents after legislation implementation. Meanwhile, seasonal effects in May (β\* = 0.514) and September (β\* = 0.493) are prominent. However, the immediate effects of copper price (β = 0.261) and total theft (β = 0.240) are relatively weak, as their impact on traffic copper cable theft would require fluctuations of approximately ± 2 SD to reach an influence comparable to that of legislation or month-specific effects.
+
+This divergence is mainly attributable to model mechanisms. The log–log model, through logarithmic transformation and long-term elasticity specification, emphasises proportional effects of continuous drivers, while short-term binary shocks are smoothed out in temporal aggregation. XGBoost, driven by gradient boosting and split-gain optimization, prioritizes continuous predictors with broad coverage and high signal-to-noise ratios, thereby limiting the influence of seasonal dummies with restricted applicability. By contrast, ARIMAX (1,0,1) uses AR/MA structures to model short-term dependencies and immediate shocks, making it particularly sensitive to legislative interventions and month-specific effects.
+
+On the other hand, the cumulative legislation variable does not exhibit the expected suppressive effect across models. In the log–log specification, its coefficient is significant but positive (β = 0.254, p = 2.417 $\times 10^{-5}$), suggesting legislation cumulatively promotes rather than deters traffic copper cable theft. In ARIMAX, the effect is insignificant (β\* = 0.122, *p* = 0.784). Although collinearity exists between binary and cumulative legislation variables in these models (VIF ≈ 14), XGBoost is insensitive to linear dependence; it assigns only 7.74% SHAP importance to the cumulative measure, lower than the non-significant predictors, unemployment (8.60%) and Chinese scrap copper imports (8.48%). Taken together, cross-model results provide no robust evidence that legislation exerts a sustained deterrent effect on traffic copper cable theft.
+
+In summary, despite differences in ranking the effects of external variables, all three models consistently demonstrate the long-term influence of copper prices and overall theft incidents on traffic copper cable theft. Legislative interventions lowered baseline theft levels but produced no cumulative effect, while seasonal patterns emerged only locally (May and September). The cross-model consistency and complementarity reinforce the robustness of the findings and offer multidimensional evidence on the interplay between persistent drivers and short-term shocks in traffic copper cable theft dynamics.
+
+![](images/Cross%20model%20comparison%20of%20key%20predictors%20and%20their%20relative%20importance.png){fig-align="center"}
+
+Table 3 Cross model comparison of key predictors and their relative importance.
+
+```{r}
+###log-log Model###
+# Model summary
+summary(log_log_model_11)
+
+###ARIMAX###
+# Model summary
+summary(arimax_model_12)
+
+# Coefficient test
+coeftest(arimax_model_12)
+
+###XGBoost###
+# -----------------------------------------------------
+# 5. SHAP variable importance analysis
+# -----------------------------------------------------
+if (!require(shapviz)) install.packages("shapviz")
+library(shapviz)
+
+# 5.1 Reconstruct the training matrix (same as in Content 1)
+X_train_1 <- model.matrix(
+  ~ cases_lag1_diff + Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag +
+    Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec,  # Fourier terms can replace monthly dummies
+  data = train_data
+)
+
+# 5.2 Compute SHAP values
+shap_values_train <- predict(xgb_final, dtrain, predcontrib = TRUE)
+shap_values_train_fixed <- shap_values_train[, !colnames(shap_values_train) %in% "BIAS", drop = FALSE]
+
+# 5.3 Convert to dataframe and sort
+shap_means <- colMeans(abs(shap_values_train_fixed))
+shap_pct <- shap_means / sum(shap_means) * 100
+shap_df <- data.frame(
+  Feature = names(shap_means),
+  Mean_SHAP_Value = shap_means,
+  Importance_Percentage = shap_pct
+) %>% arrange(desc(Importance_Percentage))
+
+print(shap_df)
+
+# 5.4 Visualize SHAP importance
+library(ggplot2)
+shap_plot_df <- shap_df %>%
+  arrange(Importance_Percentage) %>%
+  mutate(Feature = factor(Feature, levels = Feature))
+
+shap_plot <- ggplot(shap_plot_df, aes(x = Importance_Percentage, y = Feature)) +
+  geom_bar(stat = "identity", fill = "#1F77B4", width = 0.6) +
+  labs(title = "SHAP Feature Importance (Percentage View)",
+       x = "Relative Importance (%)",
+       y = "Predictor Variables") +
+  theme_minimal(base_size = 12)
+
+print(shap_plot)
+```
+
+# 6. Discussion
+
+## 6.1 Typologies and Characteristics of Traffic Copper Cable Theft
+
+Although traffic copper cable theft differs from other types of metal theft in terms of targets, environment, and process, its driving mechanisms are consistent with the results of existing research on metal theft, providing empirical support for the transfer and application of prevention strategies. In addition, this study responds to the divergences and limitations in current metal theft research by focusing on the context of traffic copper cable theft.
+
+For market demand, this study confirms that global copper prices significantly drive traffic copper cable theft, consistent with the price-driven mechanism highlighted in existing research. By contrast, no significant association is found with China’s scrap copper imports, suggesting that traffic copper cable theft is shaped more by local market circulation, price volatility, and cash-out channels ([Kooi, 2010]{.underline}), rather than by slowly adjusting global supply–demand structures. This highlights the opportunistic and immediate-driven nature of such crimes.
+
+From the perspective of social environmental factors, this study finds a significant correlation between traffic copper cable theft and overall theft incidents, consistent with [Depken and Stephenson (2016)]{.underline} on widespread metal theft. By contrast, [Sidebottom et al. (2011, 2014)]{.underline}, focusing on the UK railway system, reported no link between railway copper cable theft and their defined “other thefts,” including personal property outside the home, thefts from licensed premises and consumer goods, or non-metal thefts from railways. This divergence arises from the broader “overall crime” indicator in this study, covering all theft categories in New South Wales, which better co-varies with traffic copper cable theft through shared networks, cross-type offending, and police resource allocation, consistent with [Felson’s (2006, pp. 59–79)]{.underline} concept of a “crime ecosystem.”.
+
+By contrast, unemployment shows no significant effect, indicating that copper price fluctuations and the wider crime environment more strongly shape traffic copper cable theft, reflecting a rational, environment-driven model, consistent with the characteristics of organised crime in metal theft identified by [Mills, Skodbo, & Blyth (2013)]{.underline}.
+
+When examining regulatory effects, the study confirms that scrap metal legislation has not produced sustained cumulative impacts. As [Morgan, Hoare, & Byron (2015)]{.underline} noted, the main limitation lies in the tight coupling of black markets and legal recycling systems, allowing stolen copper to re-enter circulation even under strict regulation. Similarly, [van Elteren, Vasconcelos, and Lees (2024)]{.underline} emphasised that organized crime groups adapt quickly by adjusting their operations and labour structures, further undermining long-term legislative effectiveness.
+
+Seasonality analysis reveals that traffic copper cable theft shows weak fluctuations, clustering only in May and September, consistent with the slight peak observed in March by [Ashby, Bowers, Borrion, & Fujiyama (2014)]{.underline} for railway cable theft in the UK. The Granger test further indicates that, except for China’s scrap copper imports, most external factors affect theft only with a one-month lag. Moreover, model comparisons reveal that traffic copper cable theft is characterised by low inertia and immediate responses: In the log–log specification, the Lag-Difference Indicator was found to be statistically insignificant, and its exclusion improved model fit. By contrast, the ARIMAX(1,0,1) model captures only limited inertia, whereas in XGBoost, the “Lag-Difference Indicator” exhibits lower SHAP importance compared to key exogenous factors. Taken together, these results suggest that traffic copper cable theft is mainly driven by market and opportunity contexts rather than endogenous cycles or long-term cumulative effects.
+
+## 6.2 Preventive Frameworks and Policy Directions
+
+Building on the empirical results, traffic copper cable theft reflects characteristics of economic, organised, adaptive, and situational crime. Accordingly, this paper proposes a governance framework across three dimensions—source control, crime environment management, and prediction with early warning—to achieve targeted and sustainable intervention.
+
+\(1\) Source governance
+
+Given the pronounced economically driven nature of traffic copper cable theft, the primary task of source governance is to reduce the profitability of illegal transactions. According to rational choice theory ([Ahmad & Emeka, 2013]{.underline}), raising the costs of crime and lowering potential gains can effectively weaken criminal motivation. Many countries have implemented measures such as real-name transactions, cash bans, and strict record-keeping to strengthen regulation of the scrap metal market ([Morgan, Hoare, & Byron, 2015]{.underline}). However, the adaptability of black-market infiltration and organised networks has undermined the long-term effectiveness of legislation. Therefore, a data-driven dynamic assessment mechanism should be established to ensure continuous policy adjustment ([Kysar, 2019]{.underline}). In addition, cross-sector collaboration among police, transport authorities, and the recycling industry is essential to build an integrated governance model covering supply, channels, and law enforcement ([Mills, Skodbo, & Blyth, 2013]{.underline}), while granting greater authority to enforcement agencies to cut off illegal circulation chains ([Whiteacre, Terheide, & Biggs, 2015]{.underline}), thereby enhancing the sustained cumulative effect of legislation.
+
+\(2\) Crime environment governance
+
+Based on situational crime prevention and crime ecosystem theory, areas with high crime rates and dense targets should be prioritised for protection. Effective supervision and physical or technological measures can increase the difficulty and risk of theft. For instance, using cut-resistant cables ([nVent, n.d.]{.underline}), smart water marking ([Rosales, 2013]{.underline}), or micro-dot marking ([Hickey & Carman, 2016]{.underline}) can enhance resistance and traceability, reducing target attractiveness in the cost–benefit balance.
+
+According to crime pattern theory (CPT), reinforcing and supervising high-risk areas may shift offenders to medium- or low-risk zones, creating new crime attraction points ([Grant, 2014]{.underline}). To counter this, preventive actions should extend to lower-risk areas, such as reinforcing cable ducts with concrete or sand ([Rosales, 2013]{.underline}), applying CPTED methods to increase visibility and supervision, and fostering community-based governance with law enforcement and facility operators. Such measures help build a layered prevention system and mitigate crime displacement and re-aggregation ([Mihinjac & Saville, 2019]{.underline}).
+
+\(3\) Prediction and early warning
+
+Given the strong co-variation of traffic copper cable theft with copper price fluctuations and overall crime trends, governance requires not only a legal framework but also a dynamic prediction and early warning mechanism. Cross-institutional data sharing can enable forecasting based on copper prices, crime trends, and seasonal patterns (e.g., May and September), reducing the immediate impact of external shocks on theft incidents.
+
+For predictive modelling, this study recommends the log-log model and ARIMAX. Both are robust in capturing data fluctuations but emphasise different dynamics: the log-log model highlights long-term structural drivers such as copper prices and crime trends, while ARIMAX is more sensitive to discrete shocks from policies or seasonality through its treatment of autocorrelation and exogenous variables. Together, the two models complement each other, supporting both long-term trend analysis and short-term shock warnings under limited data conditions.
+
+# 7. Conclusion
+
+This study integrates econometric models (log–log regression and ARIMAX) with a machine learning approach (XGBoost) to provide a multidimensional analysis of the drivers and governance of traffic copper cable theft. The results, despite variations in explanatory detail across models, converge on a clear pattern: market prices and overall theft rates persist as stable drivers; legislation generates short-term deterrence but lacks cumulative effects; and seasonal influences are weak and confined to localised contexts.
+
+These findings indicate that traffic copper cable theft does not arise from long-term endogenous cycles but instead reflects a rational and highly adaptive form of crime, rooted in economic incentives and embedded within the broader crime ecosystem.
+
+From a policy perspective, governance should move beyond an overreliance on legislative instruments and adopt an integrated framework that combines market source regulation, situational prevention in high-risk areas, and predictive early-warning mechanisms, thereby enhancing precision, foresight, and sustainability.
+
+From a research perspective, this study not only fills a gap in the literature on metal theft in transport infrastructure but also provides a transferable empirical basis for cross-context comparisons of property crime and the migration of regulatory strategies. Furthermore, the complete *qmd* files and GitHub repository are made publicly available, covering data processing and model analysis workflows, thereby ensuring the reproducibility of the findings and laying a foundation for transparent and open future research.
+
+Future work should address the study’s constraints, including the coarse monthly resolution of data (January 2021–June 2023), which restricts analysis of short-term dynamics and limits advanced machine learning approaches. Incorporating higher-frequency records, along with indicators of short-term shocks such as enforcement intensity or social disruptions, could enhance explanatory power. Further refinement may also come from aligning theft data to actual occurrences rather than discovery times and accounting for delays in infrastructure restoration that obscure theft patterns.
+
+# Reproducibility and Research Transparency
+
+All data and codes used in this study are openly available in the public GitHub repository: [https://github.com/Hongbozhao0425/Traffic-copper-theft-reproducible]{.underline}. The repository provides a fully reproducible research framework, including raw and processed datasets (01_Data/), analysis scripts for ARIMAX, log–log regression, and XGBoost models (02_Scripts/), model outputs such as plots and summary tables (03_Outputs/), and manuscript source files in Quarto format (04_Manuscript/).
+
+# Acknowledgements
+
+The authors would like to thank NSW Bureau of Crime Statistics & Research for providing the traffic copper cable theft data used in the analysis. AI language models were used to enhance readability and correct grammar. No AI tool was used to generate original content, and all interpretations and conclusions are the authors’ own.
+
+# Appendix A (log-log model)
+
+Appendix A reports the robustness and specification checks for the log–log model. Section A.1 presents the full-variable specification prior to variable selection. Section A.2 shows the final model obtained through stepwise selection, and Section A.3 reports the Newey–West adjusted results across different bandwidths.
+
+## A.1 Full-variable specification
+
+![](images/Full-variable%20specification%20log-log%20model.png)
+
+```{r}
+# Log-log linear regression model 
+log_log_model_1 <- lm(log_cases ~ log_cases_diff + log_Total_theft.lag + log_Copper_price.lag + intervention.lag + log_Unwork_NSW.lag + log_Scrap_Imports_CN.lag + log_t_since.lag + Feb + Mar +  APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec, data = train_data)
+
+# Model summary
+summary(log_log_model_1)
+```
+
+## A.2 Final stepwise-selected specification
+
+![](images/Final%20stepwise-selected%20specification.png)
+
+```{r}
+# Log-log linear regression model (remove Aug)
+log_log_model_11 <- lm(log_cases ~ log_Total_theft.lag + log_Copper_price.lag + intervention.lag + log_t_since.lag + May + Sep, data = train_data)
+
+# Model summary
+summary(log_log_model_11)
+```
+
+## A.3 Newey–West adjusted results (bandwidths = 4, 6, 12, 18, 24)
+
+![](images/Newey–West%20adjusted%20results%20(bandwidths%20=%204,%206,%2012,%2018,%2024).png)
+
+![](images/Newey–West%20adjusted%20results%20(bandwidths%20=%204,%206,%2012,%2018,%2024)%20(2).png)
+
+```{r}
+library(lmtest)
+library(sandwich)
+
+# Newey–West covariance matrix (robustness checks under different bandwidths)
+bandwidths <- c(4, 6, 12, 18, 24)
+
+for (L in bandwidths) {
+  cat("\n--- Bandwidth =", L, "---\n")
+  nw_cov <- NeweyWest(log_log_model_11, lag = L, prewhite = FALSE, adjust = TRUE)
+  print(coeftest(log_log_model_11, vcov. = nw_cov))
+}
+```
+
+# Appendix B (ARIMAX model)
+
+Appendix B reports the robustness and specification checks for the ARIMAX(1,0,1) model. Section B.1 presents the full-variable specification, including all unstandardized candidate regressors. Section B.2 shows the final model obtained through stepwise selection with unstandardized coefficients, and Section B.3 reports the stepwise-selected model with z-score standardization applied to the dependent variable and continuous predictors, while binary and monthly dummy variables remain unstandardized.
+
+## B.1 Full-variable ARIMAX(1,0,1) specification
+
+![](images/Full-variable%20ARIMAX(1,0,1)%20specification.png)
+
+```{r}
+# Construct external varibale matrix
+Xreg_matrix_1 <- model.matrix(~ Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag + Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec, data = train_data)
+
+# Train the SARIMAX model
+arimax_model_1 <- auto.arima(train_data$cases, xreg = Xreg_matrix_1, max.p = 5, max.d = 2, max.q = 5, 
+                             seasonal = TRUE, stepwise = FALSE, approximation = FALSE)
+# Model summary
+summary(arimax_model_1)
+
+# Coefficient test
+coeftest(arimax_model_1)
+```
+
+## B.2 Final stepwise-selected ARIMAX(1,0,1) model (unstandardized)
+
+![](images/Final%20stepwise-selected%20ARIMAX(1,0,1)%20model%20(unstandardized).png)
+
+```{r}
+# Construct external varibale matrix (remove Nov)
+Xreg_matrix_12 <- model.matrix(~ Total_theft.lag + Copper_price.lag + intervention.lag + May + Jun + Sep, data = train_data)
+
+# Train the SARIMAX model
+arimax_model_12 <- auto.arima(train_data$cases, xreg = Xreg_matrix_12, max.p = 5, max.d = 2, max.q = 5, 
+                             seasonal = TRUE, stepwise = FALSE, approximation = FALSE)
+# Model summary
+summary(arimax_model_12)
+
+# Coefficient test
+coeftest(arimax_model_12)
+```
+
+## B.3 Final stepwise-selected ARIMAX(1,0,1) model (z-score standardization for continuous variables)
+
+![](images/Final%20stepwise-selected%20ARIMAX(1,0,1)%20model%20(z-score%20standardisation%20for%20continuous%20variables).png)
+
+```{r}
+# Standardization function
+zscore <- function(x) (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
+
+# Standardize the dependent variable and all exogenous variables
+data_std <- data.frame(
+  cases = zscore(train_data$cases),
+  Copper_price.lag = zscore(train_data$Copper_price.lag),
+  Total_theft.lag = zscore(train_data$Total_theft.lag),
+  intervention = train_data$intervention.lag,
+  May = train_data$May, # dummy variables do not need standardization
+  Jun = train_data$Jun,
+  Sep = train_data$Sep
+)
+
+arimax_std <- arima(
+  data_std$cases,
+  order = c(1, 0, 1),
+  xreg = data_std[, -1]
+)
+summary(arimax_std)
+
+# Coefficient test
+coeftest(arimax_std)
+```
+
+# Appendix C (XGBoost model)
+
+Appendix C reports the feature importance analysis for the XGBoost model. Variable importance is calculated using SHAP values, expressed as the percentage contribution of each predictor to the overall model predictions.
+
+![](images/11_XG_Boost_SHAP_feature_importance_percentage.png)
+
+Notes: The figure displays the SHAP-based feature importance derived from the XGBoost model, reported as the relative contribution percentage of each predictor. Higher percentages indicate stronger influence on the model’s predictions.
+
+```{r}
+if (!require(shapviz)) install.packages("shapviz")
+library(shapviz)
+
+# Reconstruct the training matrix (same as in Content 1)
+X_train_1 <- model.matrix(
+  ~ cases_lag1_diff + Total_theft.lag + Scrap_Imports_CN.lag + Copper_price.lag +
+    Unwork_NSW.lag + intervention.lag + t_since.lag + Feb + Mar + APr + May + Jun + Jul + Aug + Sep + Oct + Nov + Dec,  # Fourier terms can replace monthly dummies
+  data = train_data
+)
+
+# Compute SHAP values
+shap_values_train <- predict(xgb_final, dtrain, predcontrib = TRUE)
+shap_values_train_fixed <- shap_values_train[, !colnames(shap_values_train) %in% "BIAS", drop = FALSE]
+
+# Convert into dataframe and sort
+shap_means <- colMeans(abs(shap_values_train_fixed))
+shap_pct <- shap_means / sum(shap_means) * 100
+shap_df <- data.frame(
+  Feature = names(shap_means),
+  Mean_SHAP_Value = shap_means,
+  Importance_Percentage = shap_pct
+) %>% arrange(desc(Importance_Percentage))
+
+print(shap_df)
+
+# Visualize SHAP importance
+library(ggplot2)
+shap_plot_df <- shap_df %>%
+  arrange(Importance_Percentage) %>%
+  mutate(Feature = factor(Feature, levels = Feature))
+
+shap_plot <- ggplot(shap_plot_df, aes(x = Importance_Percentage, y = Feature)) +
+  geom_bar(stat = "identity", fill = "#1F77B4", width = 0.6) +
+  labs(title = "SHAP Feature Importance (Percentage View)",
+       x = "Relative Importance (%)",
+       y = "Predictor Variables") +
+  theme_minimal(base_size = 12)
+
+print(shap_plot)
+```
