@@ -123,7 +123,7 @@ When rendering this `.qmd` file in RStudio, Quarto will automatically load all r
 
 If you wish to cite this repository, please use the following **temporary citation format** (to be updated upon journal publication):
 
->  Hongbo Zhao and Zuduo Zheng. (2025). Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach. 
+>  Hongbo Zhao and Zuduo Zheng (2025). Predicting Traffic Copper Cable Theft and Its Contributing Factors: A Reproducible Time-Series Modelling Approach. 
 > Manuscript submitted for publication.  
 > Available at: [GitHub Repository]([https://github.com/Hongbozhao0425/Traffic-copper-theft-reproducible]
 
